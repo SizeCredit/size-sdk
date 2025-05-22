@@ -26,7 +26,7 @@ describe("size-sdk browser build", () => {
 
   test("size.tx.build should return converted output", async () => {
     const data = sdk.tx.build([
-      sdk.functions.deposit("0x123", {
+      sdk.market.deposit("0x123", {
         amount: "100",
         to: "0x0000000000000000000000000000000000001337",
         token: "0x4200000000000000000000000000000000000006",
@@ -40,7 +40,7 @@ describe("size-sdk browser build", () => {
 
   test("size.tx.build should accept BigInt", async () => {
     const data = sdk.tx.build([
-      sdk.functions.deposit("0x123", {
+      sdk.market.deposit("0x123", {
         amount: BigInt(100),
         to: "0x0000000000000000000000000000000000001337",
         token: "0x4200000000000000000000000000000000000006",
@@ -54,7 +54,7 @@ describe("size-sdk browser build", () => {
 
   test("size.tx.build should accept bigint", async () => {
     const data = sdk.tx.build([
-      sdk.functions.deposit("0x123", {
+      sdk.market.deposit("0x123", {
         amount: 100n,
         to: "0x0000000000000000000000000000000000001337",
         token: "0x4200000000000000000000000000000000000006",
@@ -68,7 +68,7 @@ describe("size-sdk browser build", () => {
 
   test("size.tx.build should accept BigNumber", async () => {
     const data = sdk.tx.build([
-      sdk.functions.deposit("0x123", {
+      sdk.market.deposit("0x123", {
         amount: BigNumber.from(100),
         to: "0x0000000000000000000000000000000000001337",
         token: "0x4200000000000000000000000000000000000006",
@@ -78,5 +78,31 @@ describe("size-sdk browser build", () => {
     expect(data.data).toBe(
       "0x0cf8542f000000000000000000000000420000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000001337",
     );
+  });
+
+  test("ideal flow", async () => {
+    const market = "0x0000000000000000000000000000000000000123";
+    const factory = "0x000000000000000000000000000000000000abcd";
+    const data = sdk.tx.build([
+      sdk.market.setUserConfiguration(market, {
+        vault: "0x000000000000000000000000000000000000eeee",
+        openingLimitBorrowCR: 0,
+        allCreditPositionsForSaleDisabled: false,
+        creditPositionIdsForSale: false,
+        creditPositionIds: [],
+      }),
+      sdk.market.deposit(market, {
+        amount: BigNumber.from(100),
+        to: "0x0000000000000000000000000000000000001337",
+        token: "0x4200000000000000000000000000000000000006",
+      }),
+      sdk.market.copyLimitOrders(market, {
+        copyLoanOfferConfig: sdk.structs.FullCopy,
+        copyBorrowOfferConfig: sdk.structs.FullCopy,
+      }),
+      sdk.factory.subscribeToCollections(factory, [42n]),
+    ]);
+    expect(data.target).toBe(factory);
+    expect(data.data).toBe("0x");
   });
 });

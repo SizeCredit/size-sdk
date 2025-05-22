@@ -1,5 +1,4 @@
 import {
-  Size,
   DepositParamsStruct,
   WithdrawParamsStruct,
   BuyCreditLimitParamsStruct,
@@ -11,13 +10,17 @@ import {
   LiquidateWithReplacementParamsStruct,
   SelfLiquidateParamsStruct,
   SetUserConfigurationParamsStruct,
+  CopyLimitOrdersParamsStruct,
+  CopyLimitOrderConfigStructOutput,
 } from "./types/ethers-contracts/Size";
-import { ethers } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
 import SizeABI from "./abi/Size.json";
+import SizeFactoryABI from "./abi/SizeFactory.json";
+import { SizeFactory } from "./config";
 
 type Address = `0x${string}`;
 
-type FunctionName =
+type MarketFunctionName =
   | "deposit"
   | "withdraw"
   | "buyCreditLimit"
@@ -28,11 +31,20 @@ type FunctionName =
   | "sellCreditMarketWithCollection"
   | "liquidateWithReplacement"
   | "selfLiquidate"
-  | "setUserConfiguration";
+  | "setUserConfiguration"
+  | "copyLimitOrders";
+
+type FactoryFunctionName = "subscribeToCollections";
 
 type Operation = {
   market: Address;
-  functionName: FunctionName;
+  functionName: MarketFunctionName;
+  params: any;
+};
+
+type FactoryOperation = {
+  factory: Address;
+  functionName: FactoryFunctionName;
   params: any;
 };
 
@@ -151,40 +163,102 @@ function setUserConfiguration(
   };
 }
 
+function copyLimitOrders(
+  market: Address,
+  params: CopyLimitOrdersParamsStruct,
+): Operation {
+  return {
+    market,
+    functionName: "copyLimitOrders",
+    params,
+  };
+}
+
+function subscribeToCollections(
+  factory: Address,
+  params: BigNumberish[],
+): FactoryOperation {
+  return {
+    factory,
+    functionName: "subscribeToCollections",
+    params,
+  };
+}
+
 interface TxArgs {
   target: Address;
   data: string;
 }
 
-function buildTx(operations: Operation[]): TxArgs {
-  const iface = new ethers.utils.Interface(SizeABI.abi);
-
-  return operations
-    .map((op) => {
+function buildTx(operations: (Operation | FactoryOperation)[]): TxArgs {
+  const subcalls = operations.map((op) => {
+    if ("factory" in op) {
+      const { factory, functionName, params } = op;
+      const iSizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
+      const calldata = iSizeFactory.encodeFunctionData(functionName, [params]);
+      return {
+        target: factory,
+        data: calldata,
+      };
+    } else {
+      const iSize = new ethers.utils.Interface(SizeABI.abi);
       const { market, functionName, params } = op;
-      const calldata = iface.encodeFunctionData(functionName, [params]);
-
+      const calldata = iSize.encodeFunctionData(functionName, [params]);
       return {
         target: market,
         data: calldata,
       };
-    })
-    .reduce(
-      (acc, curr) => {
-        return {
-          target: curr.target,
-          data: acc.data + curr.data,
-        };
-      },
-      { target: "" as Address, data: "" },
-    );
+    }
+  });
+
+  if (subcalls.length <= 1) {
+    return subcalls[0];
+  } else {
+    const iSizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
+    const multicall = iSizeFactory.encodeFunctionData("multicall", [
+      // FIXME: add auth
+      subcalls.map((op) =>
+        op.target === SizeFactory
+          ? op.data
+          : iSizeFactory.encodeFunctionData("callMarket", [op.target, op.data]),
+      ),
+    ]);
+    return {
+      target: SizeFactory as Address,
+      data: multicall,
+    };
+  }
 }
+
+const FullCopy: CopyLimitOrderConfigStructOutput = {
+  minTenor: BigNumber.from(0),
+  maxTenor: ethers.constants.MaxUint256,
+  minAPR: BigNumber.from(0),
+  maxAPR: ethers.constants.MaxUint256,
+  offsetAPR: BigNumber.from(0),
+} as CopyLimitOrderConfigStructOutput;
+
+const NoCopy: CopyLimitOrderConfigStructOutput = {
+  minTenor: BigNumber.from(0),
+  maxTenor: BigNumber.from(0),
+  minAPR: BigNumber.from(0),
+  maxAPR: BigNumber.from(0),
+  offsetAPR: ethers.constants.MinInt256,
+} as CopyLimitOrderConfigStructOutput;
+
+const NullCopy: CopyLimitOrderConfigStructOutput = {
+  minTenor: BigNumber.from(0),
+  maxTenor: BigNumber.from(0),
+  minAPR: BigNumber.from(0),
+  maxAPR: BigNumber.from(0),
+  offsetAPR: BigNumber.from(0),
+} as CopyLimitOrderConfigStructOutput;
 
 export default {
   tx: {
     build: buildTx,
   },
-  functions: {
+  market: {
     deposit,
     withdraw,
     buyCreditLimit,
@@ -196,5 +270,14 @@ export default {
     liquidateWithReplacement,
     selfLiquidate,
     setUserConfiguration,
+    copyLimitOrders,
+  },
+  factory: {
+    subscribeToCollections,
+  },
+  structs: {
+    FullCopy,
+    NoCopy,
+    NullCopy,
   },
 };
