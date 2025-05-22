@@ -19,4 +19,4 @@ export function subscribeToCollections(
     functionName: "subscribeToCollections",
     params,
   };
-} 
+}

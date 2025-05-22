@@ -23,4 +23,4 @@ export const NullCopy: CopyLimitOrderConfigStructOutput = {
   minAPR: BigNumber.from(0),
   maxAPR: BigNumber.from(0),
   offsetAPR: BigNumber.from(0),
-} as CopyLimitOrderConfigStructOutput; 
+} as CopyLimitOrderConfigStructOutput;

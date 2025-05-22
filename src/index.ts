@@ -37,7 +37,7 @@ export default {
   factory: {
     subscribeToCollections,
   },
-  structs: {
+  constants: {
     FullCopy,
     NoCopy,
     NullCopy,

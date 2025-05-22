@@ -35,7 +35,10 @@ export type Operation = {
   params: any;
 };
 
-export function deposit(market: Address, params: DepositParamsStruct): Operation {
+export function deposit(
+  market: Address,
+  params: DepositParamsStruct,
+): Operation {
   return {
     market,
     functionName: "deposit",
@@ -43,7 +46,10 @@ export function deposit(market: Address, params: DepositParamsStruct): Operation
   };
 }
 
-export function withdraw(market: Address, params: WithdrawParamsStruct): Operation {
+export function withdraw(
+  market: Address,
+  params: WithdrawParamsStruct,
+): Operation {
   return {
     market,
     functionName: "withdraw",
@@ -159,4 +165,4 @@ export function copyLimitOrders(
     functionName: "copyLimitOrders",
     params,
   };
-} 
+}
