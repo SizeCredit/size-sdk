@@ -17,27 +17,29 @@ import SizeABI from "./abi/Size.json";
 
 type Address = `0x${string}`;
 
+type FunctionName =
+  | "deposit"
+  | "withdraw"
+  | "buyCreditLimit"
+  | "buyCreditMarket"
+  | "buyCreditMarketWithCollection"
+  | "sellCreditLimit"
+  | "sellCreditMarket"
+  | "sellCreditMarketWithCollection"
+  | "liquidateWithReplacement"
+  | "selfLiquidate"
+  | "setUserConfiguration";
+
 type Operation = {
   market: Address;
-  type: string;
+  functionName: FunctionName;
   params: any;
 };
 
 function deposit(market: Address, params: DepositParamsStruct): Operation {
   return {
     market,
-    type: "deposit",
-    params,
-  };
-}
-
-function depositOnBehalfOf(
-  market: Address,
-  params: DepositParamsStruct & { onBehalfOf: Address },
-): Operation {
-  return {
-    market,
-    type: "depositOnBehalfOf",
+    functionName: "deposit",
     params,
   };
 }
@@ -45,18 +47,7 @@ function depositOnBehalfOf(
 function withdraw(market: Address, params: WithdrawParamsStruct): Operation {
   return {
     market,
-    type: "withdraw",
-    params,
-  };
-}
-
-function withdrawOnBehalfOf(
-  market: Address,
-  params: WithdrawParamsStruct & { onBehalfOf: Address },
-): Operation {
-  return {
-    market,
-    type: "withdrawOnBehalfOf",
+    functionName: "withdraw",
     params,
   };
 }
@@ -67,7 +58,7 @@ function buyCreditLimit(
 ): Operation {
   return {
     market,
-    type: "buyCreditLimit",
+    functionName: "buyCreditLimit",
     params,
   };
 }
@@ -78,7 +69,7 @@ function buyCreditMarket(
 ): Operation {
   return {
     market,
-    type: "buyCreditMarket",
+    functionName: "buyCreditMarket",
     params,
   };
 }
@@ -89,7 +80,7 @@ function buyCreditMarketWithCollection(
 ): Operation {
   return {
     market,
-    type: "buyCreditMarketWithCollection",
+    functionName: "buyCreditMarketWithCollection",
     params,
   };
 }
@@ -100,7 +91,7 @@ function sellCreditLimit(
 ): Operation {
   return {
     market,
-    type: "sellCreditLimit",
+    functionName: "sellCreditLimit",
     params,
   };
 }
@@ -111,7 +102,7 @@ function sellCreditMarket(
 ): Operation {
   return {
     market,
-    type: "sellCreditMarket",
+    functionName: "sellCreditMarket",
     params,
   };
 }
@@ -122,7 +113,7 @@ function sellCreditMarketWithCollection(
 ): Operation {
   return {
     market,
-    type: "sellCreditMarketWithCollection",
+    functionName: "sellCreditMarketWithCollection",
     params,
   };
 }
@@ -133,7 +124,7 @@ function liquidateWithReplacement(
 ): Operation {
   return {
     market,
-    type: "liquidateWithReplacement",
+    functionName: "liquidateWithReplacement",
     params,
   };
 }
@@ -144,7 +135,7 @@ function selfLiquidate(
 ): Operation {
   return {
     market,
-    type: "selfLiquidate",
+    functionName: "selfLiquidate",
     params,
   };
 }
@@ -155,7 +146,7 @@ function setUserConfiguration(
 ): Operation {
   return {
     market,
-    type: "setUserConfiguration",
+    functionName: "setUserConfiguration",
     params,
   };
 }
@@ -170,59 +161,8 @@ function buildTx(operations: Operation[]): TxArgs {
 
   return operations
     .map((op) => {
-      const { market, type, params } = op;
-      let calldata: string;
-
-      switch (type) {
-        case "deposit":
-          calldata = iface.encodeFunctionData("deposit", [params]);
-          break;
-        case "withdraw":
-          calldata = iface.encodeFunctionData("withdraw", [params]);
-          break;
-        case "depositOnBehalfOf":
-          calldata = iface.encodeFunctionData("depositOnBehalfOf", [params]);
-          break;
-        case "withdrawOnBehalfOf":
-          calldata = iface.encodeFunctionData("withdrawOnBehalfOf", [params]);
-          break;
-        case "buyCreditLimit":
-          calldata = iface.encodeFunctionData("buyCreditLimit", [params]);
-          break;
-        case "buyCreditMarket":
-          calldata = iface.encodeFunctionData("buyCreditMarket", [params]);
-          break;
-        case "buyCreditMarketWithCollection":
-          calldata = iface.encodeFunctionData("buyCreditMarketWithCollection", [
-            params,
-          ]);
-          break;
-        case "sellCreditLimit":
-          calldata = iface.encodeFunctionData("sellCreditLimit", [params]);
-          break;
-        case "sellCreditMarket":
-          calldata = iface.encodeFunctionData("sellCreditMarket", [params]);
-          break;
-        case "sellCreditMarketWithCollection":
-          calldata = iface.encodeFunctionData(
-            "sellCreditMarketWithCollection",
-            [params],
-          );
-          break;
-        case "liquidateWithReplacement":
-          calldata = iface.encodeFunctionData("liquidateWithReplacement", [
-            params,
-          ]);
-          break;
-        case "selfLiquidate":
-          calldata = iface.encodeFunctionData("selfLiquidate", [params]);
-          break;
-        case "setUserConfiguration":
-          calldata = iface.encodeFunctionData("setUserConfiguration", [params]);
-          break;
-        default:
-          throw new Error(`Unknown operation type: ${type}`);
-      }
+      const { market, functionName, params } = op;
+      const calldata = iface.encodeFunctionData(functionName, [params]);
 
       return {
         target: market,
@@ -241,18 +181,20 @@ function buildTx(operations: Operation[]): TxArgs {
 }
 
 export default {
-  buildTx,
-  deposit,
-  depositOnBehalfOf,
-  withdraw,
-  withdrawOnBehalfOf,
-  buyCreditLimit,
-  buyCreditMarket,
-  buyCreditMarketWithCollection,
-  sellCreditLimit,
-  sellCreditMarket,
-  sellCreditMarketWithCollection,
-  liquidateWithReplacement,
-  selfLiquidate,
-  setUserConfiguration,
+  tx: {
+    build: buildTx,
+  },
+  functions: {
+    deposit,
+    withdraw,
+    buyCreditLimit,
+    buyCreditMarket,
+    buyCreditMarketWithCollection,
+    sellCreditLimit,
+    sellCreditMarket,
+    sellCreditMarketWithCollection,
+    liquidateWithReplacement,
+    selfLiquidate,
+    setUserConfiguration,
+  },
 };
