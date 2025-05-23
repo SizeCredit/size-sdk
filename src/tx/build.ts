@@ -70,7 +70,7 @@ export function buildTx(
       .map((op) => op.action)
       .filter((action): action is Action => action !== undefined);
 
-    if (actions.length === 9) {
+    if (actions.length === 0) {
       return {
         target: SizeFactory as Address,
         data: iSizeFactory.encodeFunctionData("multicall", [innerCalls]),
