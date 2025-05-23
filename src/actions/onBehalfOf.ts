@@ -9,8 +9,21 @@ import {
   BuyCreditMarketOnBehalfOfParamsStruct,
   BuyCreditLimitOnBehalfOfParamsStruct,
   WithdrawOnBehalfOfParamsStruct,
+  DepositParamsStruct,
+  WithdrawParamsStruct,
+  BuyCreditLimitParamsStruct,
+  BuyCreditMarketParamsStruct,
+  SellCreditLimitParamsStruct,
+  SellCreditMarketParamsStruct,
+  SelfLiquidateParamsStruct,
+  SetUserConfigurationParamsStruct,
+  CopyLimitOrdersParamsStruct,
 } from "../types/ethers-contracts/Size";
-import { MarketFunctionName, MarketOperationParams } from "./market";
+import {
+  MarketFunctionName,
+  MarketOperation,
+  MarketOperationParams,
+} from "./market";
 
 type Address = `0x${string}`;
 
@@ -68,110 +81,139 @@ export type OnBehalfOfOperation<
 };
 
 export function depositOnBehalfOf(
-  market: Address,
-  externalParams: DepositOnBehalfOfParamsStruct,
+  deposit: MarketOperation<DepositParamsStruct>,
+  onBehalfOf: Address,
 ): OnBehalfOfOperation<DepositOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: deposit.market,
     functionName: "depositOnBehalfOf",
-    action: FunctionNameToAction["deposit"],
-    externalParams,
+    action: Action.DEPOSIT,
+    externalParams: {
+      params: deposit.params,
+      onBehalfOf,
+    },
   };
 }
 
 export function withdrawOnBehalfOf(
-  market: Address,
-  externalParams: WithdrawOnBehalfOfParamsStruct,
+  withdraw: MarketOperation<WithdrawParamsStruct>,
+  onBehalfOf: Address,
 ): OnBehalfOfOperation<WithdrawOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: withdraw.market,
     functionName: "withdrawOnBehalfOf",
-    action: FunctionNameToAction["withdraw"],
-    externalParams,
+    action: Action.WITHDRAW,
+    externalParams: {
+      params: withdraw.params,
+      onBehalfOf,
+    },
   };
 }
 
 export function buyCreditLimitOnBehalfOf(
-  market: Address,
-  externalParams: BuyCreditLimitOnBehalfOfParamsStruct,
+  buyCreditLimit: MarketOperation<BuyCreditLimitParamsStruct>,
+  onBehalfOf: Address,
 ): OnBehalfOfOperation<BuyCreditLimitOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: buyCreditLimit.market,
     functionName: "buyCreditLimitOnBehalfOf",
-    action: FunctionNameToAction["buyCreditLimit"],
-    externalParams,
+    action: Action.BUY_CREDIT_LIMIT,
+    externalParams: {
+      params: buyCreditLimit.params,
+      onBehalfOf,
+    },
   };
 }
 
 export function buyCreditMarketOnBehalfOf(
-  market: Address,
-  externalParams: BuyCreditMarketOnBehalfOfParamsStruct,
+  buyCreditMarket: MarketOperation<BuyCreditMarketParamsStruct>,
+  onBehalfOf: Address,
 ): OnBehalfOfOperation<BuyCreditMarketOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: buyCreditMarket.market,
     functionName: "buyCreditMarketOnBehalfOf",
-    action: FunctionNameToAction["buyCreditMarket"],
-    externalParams,
+    action: Action.BUY_CREDIT_MARKET,
+    externalParams: {
+      params: buyCreditMarket.params,
+      onBehalfOf,
+    },
   };
 }
 
 export function sellCreditLimitOnBehalfOf(
-  market: Address,
-  externalParams: SellCreditLimitOnBehalfOfParamsStruct,
+  sellCreditLimit: MarketOperation<SellCreditLimitParamsStruct>,
+  onBehalfOf: Address,
 ): OnBehalfOfOperation<SellCreditLimitOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: sellCreditLimit.market,
     functionName: "sellCreditLimitOnBehalfOf",
-    action: FunctionNameToAction["sellCreditLimit"],
-    externalParams,
+    action: Action.SELL_CREDIT_LIMIT,
+    externalParams: {
+      params: sellCreditLimit.params,
+      onBehalfOf,
+    },
   };
 }
 
 export function sellCreditMarketOnBehalfOf(
-  market: Address,
-  externalParams: SellCreditMarketOnBehalfOfParamsStruct,
+  sellCreditMarket: MarketOperation<SellCreditMarketParamsStruct>,
+  onBehalfOf: Address,
 ): OnBehalfOfOperation<SellCreditMarketOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: sellCreditMarket.market,
     functionName: "sellCreditMarketOnBehalfOf",
-    action: FunctionNameToAction["sellCreditMarket"],
-    externalParams,
+    action: Action.SELL_CREDIT_MARKET,
+    externalParams: {
+      params: sellCreditMarket.params,
+      onBehalfOf,
+    },
   };
 }
 
 export function selfLiquidateOnBehalfOf(
-  market: Address,
-  externalParams: SelfLiquidateOnBehalfOfParamsStruct,
+  selfLiquidate: MarketOperation<SelfLiquidateParamsStruct>,
+  onBehalfOf: Address,
+  recipient?: Address,
 ): OnBehalfOfOperation<SelfLiquidateOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: selfLiquidate.market,
     functionName: "selfLiquidateOnBehalfOf",
-    action: FunctionNameToAction["selfLiquidate"],
-    externalParams,
+    action: Action.SELF_LIQUIDATE,
+    externalParams: {
+      params: selfLiquidate.params,
+      onBehalfOf,
+      recipient: recipient ?? onBehalfOf,
+    },
   };
 }
 
 export function setUserConfigurationOnBehalfOf(
-  market: Address,
-  externalParams: SetUserConfigurationOnBehalfOfParamsStruct,
+  setUserConfiguration: MarketOperation<SetUserConfigurationParamsStruct>,
+  onBehalfOf: Address,
 ): OnBehalfOfOperation<SetUserConfigurationOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: setUserConfiguration.market,
     functionName: "setUserConfigurationOnBehalfOf",
-    action: FunctionNameToAction["setUserConfiguration"],
-    externalParams,
+    action: Action.SET_USER_CONFIGURATION,
+    externalParams: {
+      params: setUserConfiguration.params,
+      onBehalfOf,
+    },
   };
 }
 
 export function copyLimitOrdersOnBehalfOf(
-  market: Address,
-  externalParams: CopyLimitOrdersOnBehalfOfParamsStruct,
+  copyLimitOrders: MarketOperation<CopyLimitOrdersParamsStruct>,
+  onBehalfOf: Address,
 ): OnBehalfOfOperation<CopyLimitOrdersOnBehalfOfParamsStruct> {
   return {
-    market,
+    market: copyLimitOrders.market,
     functionName: "copyLimitOrdersOnBehalfOf",
-    action: FunctionNameToAction["copyLimitOrders"],
-    externalParams,
+    action: Action.COPY_LIMIT_ORDERS,
+    externalParams: {
+      params: copyLimitOrders.params,
+      onBehalfOf,
+    },
   };
 }
 
@@ -189,6 +231,7 @@ export function onBehalfOfOperation(
   if (!onBehalfOfFunctionName) {
     return undefined;
   } else {
+    // TODO: generate from OnBehalfOf functions
     return {
       market,
       functionName: onBehalfOfFunctionName,
