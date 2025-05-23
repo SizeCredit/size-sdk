@@ -15,7 +15,7 @@ import {
 
 type Address = `0x${string}`;
 
-type MarketFunctionName =
+export type MarketFunctionName =
   | "deposit"
   | "withdraw"
   | "buyCreditLimit"
@@ -29,16 +29,32 @@ type MarketFunctionName =
   | "setUserConfiguration"
   | "copyLimitOrders";
 
-export type MarketOperation = {
+export type MarketOperationParams =
+  | DepositParamsStruct
+  | WithdrawParamsStruct
+  | BuyCreditLimitParamsStruct
+  | BuyCreditMarketParamsStruct
+  | BuyCreditMarketWithCollectionParamsStruct
+  | SellCreditLimitParamsStruct
+  | SellCreditMarketParamsStruct
+  | SellCreditMarketWithCollectionParamsStruct
+  | LiquidateWithReplacementParamsStruct
+  | SelfLiquidateParamsStruct
+  | SetUserConfigurationParamsStruct
+  | CopyLimitOrdersParamsStruct;
+
+export type MarketOperation<
+  T extends MarketOperationParams = MarketOperationParams,
+> = {
   market: Address;
   functionName: MarketFunctionName;
-  params: any;
+  params: T;
 };
 
 export function deposit(
   market: Address,
   params: DepositParamsStruct,
-): MarketOperation {
+): MarketOperation<DepositParamsStruct> {
   return {
     market,
     functionName: "deposit",
@@ -49,7 +65,7 @@ export function deposit(
 export function withdraw(
   market: Address,
   params: WithdrawParamsStruct,
-): MarketOperation {
+): MarketOperation<WithdrawParamsStruct> {
   return {
     market,
     functionName: "withdraw",
@@ -60,7 +76,7 @@ export function withdraw(
 export function buyCreditLimit(
   market: Address,
   params: BuyCreditLimitParamsStruct,
-): MarketOperation {
+): MarketOperation<BuyCreditLimitParamsStruct> {
   return {
     market,
     functionName: "buyCreditLimit",
@@ -71,7 +87,7 @@ export function buyCreditLimit(
 export function buyCreditMarket(
   market: Address,
   params: BuyCreditMarketParamsStruct,
-): MarketOperation {
+): MarketOperation<BuyCreditMarketParamsStruct> {
   return {
     market,
     functionName: "buyCreditMarket",
@@ -82,7 +98,7 @@ export function buyCreditMarket(
 export function buyCreditMarketWithCollection(
   market: Address,
   params: BuyCreditMarketWithCollectionParamsStruct,
-): MarketOperation {
+): MarketOperation<BuyCreditMarketWithCollectionParamsStruct> {
   return {
     market,
     functionName: "buyCreditMarketWithCollection",
@@ -93,7 +109,7 @@ export function buyCreditMarketWithCollection(
 export function sellCreditLimit(
   market: Address,
   params: SellCreditLimitParamsStruct,
-): MarketOperation {
+): MarketOperation<SellCreditLimitParamsStruct> {
   return {
     market,
     functionName: "sellCreditLimit",
@@ -104,7 +120,7 @@ export function sellCreditLimit(
 export function sellCreditMarket(
   market: Address,
   params: SellCreditMarketParamsStruct,
-): MarketOperation {
+): MarketOperation<SellCreditMarketParamsStruct> {
   return {
     market,
     functionName: "sellCreditMarket",
@@ -115,7 +131,7 @@ export function sellCreditMarket(
 export function sellCreditMarketWithCollection(
   market: Address,
   params: SellCreditMarketWithCollectionParamsStruct,
-): MarketOperation {
+): MarketOperation<SellCreditMarketWithCollectionParamsStruct> {
   return {
     market,
     functionName: "sellCreditMarketWithCollection",
@@ -126,7 +142,7 @@ export function sellCreditMarketWithCollection(
 export function liquidateWithReplacement(
   market: Address,
   params: LiquidateWithReplacementParamsStruct,
-): MarketOperation {
+): MarketOperation<LiquidateWithReplacementParamsStruct> {
   return {
     market,
     functionName: "liquidateWithReplacement",
@@ -137,7 +153,7 @@ export function liquidateWithReplacement(
 export function selfLiquidate(
   market: Address,
   params: SelfLiquidateParamsStruct,
-): MarketOperation {
+): MarketOperation<SelfLiquidateParamsStruct> {
   return {
     market,
     functionName: "selfLiquidate",
@@ -148,7 +164,7 @@ export function selfLiquidate(
 export function setUserConfiguration(
   market: Address,
   params: SetUserConfigurationParamsStruct,
-): MarketOperation {
+): MarketOperation<SetUserConfigurationParamsStruct> {
   return {
     market,
     functionName: "setUserConfiguration",
@@ -159,7 +175,7 @@ export function setUserConfiguration(
 export function copyLimitOrders(
   market: Address,
   params: CopyLimitOrdersParamsStruct,
-): MarketOperation {
+): MarketOperation<CopyLimitOrdersParamsStruct> {
   return {
     market,
     functionName: "copyLimitOrders",

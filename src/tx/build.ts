@@ -4,12 +4,11 @@ import SizeFactoryABI from "../abi/SizeFactory.json";
 import { SizeFactory } from "../config";
 import { MarketOperation } from "../actions/market";
 import { FactoryOperation } from "../actions/factory";
+import { Action, getActionsBitmap, nullActionsBitmap } from "../Authorization";
 import {
-  Action,
-  FunctionNameToAction,
-  getActionsBitmap,
-  nullActionsBitmap,
-} from "../Authorization";
+  OnBehalfOfOperation,
+  onBehalfOfOperation,
+} from "../actions/onBehalfOf";
 
 type Address = `0x${string}`;
 
@@ -18,7 +17,10 @@ interface TxArgs {
   data: string;
 }
 
-interface Subcall extends TxArgs {
+interface Subcall {
+  target: Address;
+  calldata: string;
+  onBehalfOfCalldata?: string;
   action?: Action;
 }
 
@@ -28,18 +30,37 @@ function isMarketOperation(
   return "market" in op;
 }
 
+function isOnBehalfOfOperation(
+  op: OnBehalfOfOperation | MarketOperation,
+): op is OnBehalfOfOperation {
+  return "externalParams" in op;
+}
+
 export function buildTx(
+  onBehalfOf: Address,
   operations: (MarketOperation | FactoryOperation)[],
+  recipient?: Address,
 ): TxArgs {
   const subcalls: Subcall[] = operations.map((operation) => {
     if (isMarketOperation(operation)) {
       const iSize = new ethers.utils.Interface(SizeABI.abi);
       const { market, functionName, params } = operation;
-      const calldata = iSize.encodeFunctionData(functionName, [params]);
+      const onBehalfOfOp = onBehalfOfOperation(
+        market,
+        functionName,
+        params,
+        onBehalfOf,
+        recipient,
+      );
       return {
         target: market,
-        data: calldata,
-        action: FunctionNameToAction[functionName],
+        calldata: iSize.encodeFunctionData(functionName, [params]),
+        onBehalfOfCalldata: onBehalfOfOp
+          ? iSize.encodeFunctionData(onBehalfOfOp.functionName, [
+              onBehalfOfOp.externalParams,
+            ])
+          : undefined,
+        action: onBehalfOfOp?.action,
       };
     } else {
       const { functionName, params } = operation;
@@ -47,7 +68,8 @@ export function buildTx(
       const calldata = iSizeFactory.encodeFunctionData(functionName, [params]);
       return {
         target: SizeFactory,
-        data: calldata,
+        calldata: calldata,
+        onBehalfOfCalldata: undefined,
         action: undefined,
       };
     }
@@ -56,14 +78,17 @@ export function buildTx(
   if (subcalls.length <= 1) {
     return {
       target: subcalls[0].target,
-      data: subcalls[0].data,
+      data: subcalls[0].calldata,
     };
   } else {
     const iSizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
     const innerCalls = subcalls.map((op) =>
       op.target === SizeFactory
-        ? op.data
-        : iSizeFactory.encodeFunctionData("callMarket", [op.target, op.data]),
+        ? op.calldata
+        : iSizeFactory.encodeFunctionData("callMarket", [
+            op.target,
+            op.onBehalfOfCalldata,
+          ]),
     );
 
     const actions = subcalls
