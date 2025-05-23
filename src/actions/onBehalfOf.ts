@@ -1,15 +1,5 @@
 import { Action, FunctionNameToAction } from "../Authorization";
-import { LiquidateWithReplacementEvent } from "../types/ethers-contracts/Events";
 import {
-  DepositParamsStruct,
-  WithdrawParamsStruct,
-  BuyCreditLimitParamsStruct,
-  BuyCreditMarketParamsStruct,
-  SellCreditLimitParamsStruct,
-  SellCreditMarketParamsStruct,
-  SelfLiquidateParamsStruct,
-  SetUserConfigurationParamsStruct,
-  CopyLimitOrdersParamsStruct,
   DepositOnBehalfOfParamsStruct,
   SetUserConfigurationOnBehalfOfParamsStruct,
   CopyLimitOrdersOnBehalfOfParamsStruct,
@@ -20,11 +10,7 @@ import {
   BuyCreditLimitOnBehalfOfParamsStruct,
   WithdrawOnBehalfOfParamsStruct,
 } from "../types/ethers-contracts/Size";
-import {
-  MarketFunctionName,
-  MarketOperation,
-  MarketOperationParams,
-} from "./market";
+import { MarketFunctionName, MarketOperationParams } from "./market";
 
 type Address = `0x${string}`;
 
