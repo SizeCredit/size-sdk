@@ -30,12 +30,6 @@ function isMarketOperation(
   return "market" in op;
 }
 
-function isOnBehalfOfOperation(
-  op: OnBehalfOfOperation | MarketOperation,
-): op is OnBehalfOfOperation {
-  return "externalParams" in op;
-}
-
 export function buildTx(
   onBehalfOf: Address,
   operations: (MarketOperation | FactoryOperation)[],
