@@ -13,16 +13,19 @@ import {
   WithdrawParamsStruct,
   BuyCreditLimitParamsStruct,
   BuyCreditMarketParamsStruct,
+  BuyCreditMarketWithCollectionParamsStruct,
   SellCreditLimitParamsStruct,
   SellCreditMarketParamsStruct,
+  SellCreditMarketWithCollectionParamsStruct,
   SelfLiquidateParamsStruct,
   SetUserConfigurationParamsStruct,
   CopyLimitOrdersParamsStruct,
-} from "../types/ethers-contracts/Size";
+} from "../types-v1_8/ethers-contracts/Size";
 import {
   MarketFunctionName,
   MarketOperation,
   MarketOperationParams,
+  sellCreditMarket,
 } from "./market";
 
 type Address = `0x${string}`;
@@ -126,16 +129,18 @@ export function buyCreditLimitOnBehalfOf(
 }
 
 export function buyCreditMarketOnBehalfOf(
-  buyCreditMarket: MarketOperation<BuyCreditMarketParamsStruct>,
+  withCollectionParams: MarketOperation<BuyCreditMarketWithCollectionParamsStruct>,
   onBehalfOf: Address,
+  recipient?: Address,
 ): OnBehalfOfOperation<BuyCreditMarketOnBehalfOfParamsStruct> {
   return {
-    market: buyCreditMarket.market,
+    market: withCollectionParams.market,
     functionName: "buyCreditMarketOnBehalfOf",
     action: Action.BUY_CREDIT_MARKET,
     externalParams: {
-      params: buyCreditMarket.params,
+      withCollectionParams: withCollectionParams.params,
       onBehalfOf,
+      recipient: recipient ?? onBehalfOf,
     },
   };
 }
@@ -156,16 +161,18 @@ export function sellCreditLimitOnBehalfOf(
 }
 
 export function sellCreditMarketOnBehalfOf(
-  sellCreditMarket: MarketOperation<SellCreditMarketParamsStruct>,
+  withCollectionParams: MarketOperation<SellCreditMarketWithCollectionParamsStruct>,
   onBehalfOf: Address,
+  recipient?: Address,
 ): OnBehalfOfOperation<SellCreditMarketOnBehalfOfParamsStruct> {
   return {
-    market: sellCreditMarket.market,
+    market: withCollectionParams.market,
     functionName: "sellCreditMarketOnBehalfOf",
     action: Action.SELL_CREDIT_MARKET,
     externalParams: {
-      params: sellCreditMarket.params,
+      withCollectionParams: withCollectionParams.params,
       onBehalfOf,
+      recipient: recipient ?? onBehalfOf,
     },
   };
 }

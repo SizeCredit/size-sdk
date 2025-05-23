@@ -11,7 +11,7 @@ import {
   SelfLiquidateParamsStruct,
   SetUserConfigurationParamsStruct,
   CopyLimitOrdersParamsStruct,
-} from "../types/ethers-contracts/Size";
+} from "../types-v1_8/ethers-contracts/Size";
 
 type Address = `0x${string}`;
 
@@ -130,6 +130,7 @@ export function sellCreditMarket(
 
 export function sellCreditMarketWithCollection(
   market: Address,
+  // withCollectionParams: SellCreditMarketWithCollectionParamsStruct,
   params: SellCreditMarketWithCollectionParamsStruct,
 ): MarketOperation<SellCreditMarketWithCollectionParamsStruct> {
   return {
