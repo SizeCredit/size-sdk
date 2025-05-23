@@ -29,7 +29,7 @@ type MarketFunctionName =
   | "setUserConfiguration"
   | "copyLimitOrders";
 
-export type Operation = {
+export type MarketOperation = {
   market: Address;
   functionName: MarketFunctionName;
   params: any;
@@ -38,7 +38,7 @@ export type Operation = {
 export function deposit(
   market: Address,
   params: DepositParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "deposit",
@@ -49,7 +49,7 @@ export function deposit(
 export function withdraw(
   market: Address,
   params: WithdrawParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "withdraw",
@@ -60,7 +60,7 @@ export function withdraw(
 export function buyCreditLimit(
   market: Address,
   params: BuyCreditLimitParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "buyCreditLimit",
@@ -71,7 +71,7 @@ export function buyCreditLimit(
 export function buyCreditMarket(
   market: Address,
   params: BuyCreditMarketParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "buyCreditMarket",
@@ -82,7 +82,7 @@ export function buyCreditMarket(
 export function buyCreditMarketWithCollection(
   market: Address,
   params: BuyCreditMarketWithCollectionParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "buyCreditMarketWithCollection",
@@ -93,7 +93,7 @@ export function buyCreditMarketWithCollection(
 export function sellCreditLimit(
   market: Address,
   params: SellCreditLimitParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "sellCreditLimit",
@@ -104,7 +104,7 @@ export function sellCreditLimit(
 export function sellCreditMarket(
   market: Address,
   params: SellCreditMarketParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "sellCreditMarket",
@@ -115,7 +115,7 @@ export function sellCreditMarket(
 export function sellCreditMarketWithCollection(
   market: Address,
   params: SellCreditMarketWithCollectionParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "sellCreditMarketWithCollection",
@@ -126,7 +126,7 @@ export function sellCreditMarketWithCollection(
 export function liquidateWithReplacement(
   market: Address,
   params: LiquidateWithReplacementParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "liquidateWithReplacement",
@@ -137,7 +137,7 @@ export function liquidateWithReplacement(
 export function selfLiquidate(
   market: Address,
   params: SelfLiquidateParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "selfLiquidate",
@@ -148,7 +148,7 @@ export function selfLiquidate(
 export function setUserConfiguration(
   market: Address,
   params: SetUserConfigurationParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "setUserConfiguration",
@@ -159,7 +159,7 @@ export function setUserConfiguration(
 export function copyLimitOrders(
   market: Address,
   params: CopyLimitOrdersParamsStruct,
-): Operation {
+): MarketOperation {
   return {
     market,
     functionName: "copyLimitOrders",

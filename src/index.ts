@@ -12,7 +12,10 @@ import {
   setUserConfiguration,
   copyLimitOrders,
 } from "./actions/market";
-import { subscribeToCollections } from "./actions/factory";
+import {
+  subscribeToCollections,
+  unsubscribeFromCollections,
+} from "./actions/factory";
 import { buildTx } from "./tx/build";
 import { FullCopy, NoCopy, NullCopy } from "./constants";
 
@@ -36,6 +39,7 @@ export default {
   },
   factory: {
     subscribeToCollections,
+    unsubscribeFromCollections,
   },
   constants: {
     FullCopy,
