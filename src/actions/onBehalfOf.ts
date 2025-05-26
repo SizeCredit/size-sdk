@@ -232,7 +232,6 @@ export function onBehalfOfOperation(
   if (!onBehalfOfFunctionName) {
     return undefined;
   } else {
-    // TODO: generate from OnBehalfOf functions
     return {
       market,
       functionName: onBehalfOfFunctionName,

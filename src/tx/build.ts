@@ -69,7 +69,9 @@ export function buildTx(
     }
   });
 
-  if (subcalls.length <= 1) {
+  if (subcalls.length === 0) {
+    throw new Error("[size-sdk] no operations to execute");
+  } else if (subcalls.length == 1) {
     return {
       target: subcalls[0].target,
       data: subcalls[0].calldata,
