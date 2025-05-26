@@ -1,4 +1,5 @@
 import { Action, FunctionNameToAction } from "../Authorization";
+import { Address } from "../types";
 import {
   DepositOnBehalfOfParamsStruct,
   SetUserConfigurationOnBehalfOfParamsStruct,
@@ -23,10 +24,7 @@ import {
   MarketFunctionName,
   MarketOperation,
   MarketOperationParams,
-  sellCreditMarket,
 } from "./market";
-
-type Address = `0x${string}`;
 
 export type OnBehalfOfFunctionName =
   | "depositOnBehalfOf"

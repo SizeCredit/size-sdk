@@ -16,6 +16,7 @@ import {
 } from "./actions/factory";
 import { buildTx } from "./tx/build";
 import { FullCopy, NoCopy, NullCopy } from "./constants";
+import deadline from "./helpers/deadline";
 
 export default {
   tx: {
@@ -36,6 +37,9 @@ export default {
   factory: {
     subscribeToCollections,
     unsubscribeFromCollections,
+  },
+  helpers: {
+    deadline,
   },
   constants: {
     FullCopy,

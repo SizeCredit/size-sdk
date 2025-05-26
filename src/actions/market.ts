@@ -1,3 +1,4 @@
+import { Address } from "../types";
 import {
   DepositParamsStruct,
   WithdrawParamsStruct,
@@ -10,8 +11,6 @@ import {
   SetUserConfigurationParamsStruct,
   CopyLimitOrdersParamsStruct,
 } from "../types/ethers-contracts/Size";
-
-type Address = `0x${string}`;
 
 export type MarketFunctionName =
   | "deposit"
