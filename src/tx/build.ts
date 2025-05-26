@@ -4,11 +4,11 @@ import SizeFactoryABI from "../abi/SizeFactory.json";
 import { SizeFactory } from "../config";
 import { MarketOperation } from "../actions/market";
 import { FactoryOperation } from "../actions/factory";
-import { Action, getActionsBitmap, nullActionsBitmap } from "../Authorization";
-import {
-  OnBehalfOfOperation,
-  onBehalfOfOperation,
-} from "../actions/onBehalfOf";
+import Authorization, {
+  type Action,
+  type ActionsBitmap,
+} from "../Authorization";
+import { onBehalfOfOperation } from "../actions/onBehalfOf";
 
 type Address = `0x${string}`;
 
@@ -30,14 +30,16 @@ function isMarketOperation(
   return "market" in op;
 }
 
-export function buildTx(
-  onBehalfOf: Address,
+const ISize = new ethers.utils.Interface(SizeABI.abi);
+const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
+
+function getSubcalls(
   operations: (MarketOperation | FactoryOperation)[],
+  onBehalfOf: Address,
   recipient?: Address,
-): TxArgs {
-  const subcalls: Subcall[] = operations.map((operation) => {
+): Subcall[] {
+  return operations.map((operation) => {
     if (isMarketOperation(operation)) {
-      const iSize = new ethers.utils.Interface(SizeABI.abi);
       const { market, functionName, params } = operation;
       const onBehalfOfOp = onBehalfOfOperation(
         market,
@@ -48,9 +50,9 @@ export function buildTx(
       );
       return {
         target: market,
-        calldata: iSize.encodeFunctionData(functionName, [params]),
+        calldata: ISize.encodeFunctionData(functionName, [params]),
         onBehalfOfCalldata: onBehalfOfOp
-          ? iSize.encodeFunctionData(onBehalfOfOp.functionName, [
+          ? ISize.encodeFunctionData(onBehalfOfOp.functionName, [
               onBehalfOfOp.externalParams,
             ])
           : undefined,
@@ -58,8 +60,7 @@ export function buildTx(
       };
     } else {
       const { functionName, params } = operation;
-      const iSizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
-      const calldata = iSizeFactory.encodeFunctionData(functionName, [params]);
+      const calldata = ISizeFactory.encodeFunctionData(functionName, [params]);
       return {
         target: SizeFactory,
         calldata: calldata,
@@ -68,6 +69,56 @@ export function buildTx(
       };
     }
   });
+}
+
+function requiresAuthorization(subcalls: Subcall[]): boolean {
+  return subcalls
+    .map((op) => op.action)
+    .some((action): action is Action => action !== undefined);
+}
+
+function getActionsBitmap(subcalls: Subcall[]): ActionsBitmap {
+  const actions = subcalls
+    .map((op) => op.action)
+    .filter((action): action is Action => action !== undefined);
+  return Authorization.getActionsBitmap(actions);
+}
+
+function getSizeFactorySubcallsDatas(subcalls: Subcall[]): string[] {
+  return subcalls.map((op) =>
+    op.target === SizeFactory
+      ? op.calldata
+      : ISizeFactory.encodeFunctionData("callMarket", [
+          op.target,
+          op.onBehalfOfCalldata,
+        ]),
+  );
+}
+
+function getAuthorizationSubcallsDatas(
+  subcalls: Subcall[],
+): [string, string] | [] {
+  if (requiresAuthorization(subcalls)) {
+    const auth = ISizeFactory.encodeFunctionData("setAuthorization", [
+      SizeFactory,
+      getActionsBitmap(subcalls),
+    ]);
+    const nullAuth = ISizeFactory.encodeFunctionData("setAuthorization", [
+      SizeFactory,
+      Authorization.nullActionsBitmap(),
+    ]);
+    return [auth, nullAuth];
+  } else {
+    return [];
+  }
+}
+
+export function buildTx(
+  onBehalfOf: Address,
+  operations: (MarketOperation | FactoryOperation)[],
+  recipient?: Address,
+): TxArgs {
+  const subcalls = getSubcalls(operations, onBehalfOf, recipient);
 
   if (subcalls.length === 0) {
     throw new Error("[size-sdk] no operations to execute");
@@ -77,41 +128,15 @@ export function buildTx(
       data: subcalls[0].calldata,
     };
   } else {
-    const iSizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
-    const innerCalls = subcalls.map((op) =>
-      op.target === SizeFactory
-        ? op.calldata
-        : iSizeFactory.encodeFunctionData("callMarket", [
-            op.target,
-            op.onBehalfOfCalldata,
-          ]),
-    );
+    const sizeFactorySubcallsDatas = getSizeFactorySubcallsDatas(subcalls);
+    const [maybeAuth, maybeNullAuth] = getAuthorizationSubcallsDatas(subcalls);
 
-    const actions = subcalls
-      .map((op) => op.action)
-      .filter((action): action is Action => action !== undefined);
-
-    if (actions.length === 0) {
-      return {
-        target: SizeFactory as Address,
-        data: iSizeFactory.encodeFunctionData("multicall", [innerCalls]),
-      };
-    } else {
-      const auth = iSizeFactory.encodeFunctionData("setAuthorization", [
-        SizeFactory,
-        getActionsBitmap(actions),
-      ]);
-      const noAuth = iSizeFactory.encodeFunctionData("setAuthorization", [
-        SizeFactory,
-        nullActionsBitmap(),
-      ]);
-      const multicall = iSizeFactory.encodeFunctionData("multicall", [
-        [auth, ...innerCalls, noAuth],
-      ]);
-      return {
-        target: SizeFactory as Address,
-        data: multicall,
-      };
-    }
+    const multicall = ISizeFactory.encodeFunctionData("multicall", [
+      [maybeAuth, ...sizeFactorySubcallsDatas, maybeNullAuth].filter(Boolean),
+    ]);
+    return {
+      target: SizeFactory as Address,
+      data: multicall,
+    };
   }
 }
