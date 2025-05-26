@@ -2,9 +2,10 @@ import { JSDOM } from "jsdom";
 import path from "path";
 import { describe, expect, test, beforeAll } from "@jest/globals";
 import SizeSDK from "../src/index";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { SizeFactory } from "../src/config";
 import selector from "./selector";
+import Authorization, { Action } from "../src/Authorization";
 
 describe("size-sdk browser build", () => {
   let window: any;
@@ -124,6 +125,18 @@ describe("size-sdk browser build", () => {
     ]);
     expect(tx.target).toBe(SizeFactory);
     expect(tx.data).toContain(selector("setAuthorization(address,uint256)"));
+    const iface = new ethers.utils.Interface([
+      "function setAuthorization(address,uint256)",
+    ]);
+    const auth = iface.encodeFunctionData("setAuthorization", [
+      SizeFactory,
+      Authorization.getActionsBitmap([
+        Action.SET_USER_CONFIGURATION,
+        Action.DEPOSIT,
+        Action.COPY_LIMIT_ORDERS,
+      ]).toString(),
+    ]);
+    expect(tx.data).toContain(auth.substring(2));
     expect(tx.data).toContain(
       selector("depositOnBehalfOf(((address,uint256,address),address))"),
     );
