@@ -67,6 +67,8 @@ export type BuyCreditMarketParamsStruct = {
   deadline: BigNumberish;
   minAPR: BigNumberish;
   exactAmountIn: boolean;
+  collectionId: BigNumberish;
+  rateProvider: string;
 };
 
 export type BuyCreditMarketParamsStructOutput = [
@@ -77,6 +79,8 @@ export type BuyCreditMarketParamsStructOutput = [
   BigNumber,
   BigNumber,
   boolean,
+  BigNumber,
+  string,
 ] & {
   borrower: string;
   creditPositionId: BigNumber;
@@ -85,36 +89,22 @@ export type BuyCreditMarketParamsStructOutput = [
   deadline: BigNumber;
   minAPR: BigNumber;
   exactAmountIn: boolean;
-};
-
-export type BuyCreditMarketWithCollectionParamsStruct = {
-  params: BuyCreditMarketParamsStruct;
-  collectionId: BigNumberish;
-  rateProvider: string;
-};
-
-export type BuyCreditMarketWithCollectionParamsStructOutput = [
-  BuyCreditMarketParamsStructOutput,
-  BigNumber,
-  string,
-] & {
-  params: BuyCreditMarketParamsStructOutput;
   collectionId: BigNumber;
   rateProvider: string;
 };
 
 export type BuyCreditMarketOnBehalfOfParamsStruct = {
-  withCollectionParams: BuyCreditMarketWithCollectionParamsStruct;
+  params: BuyCreditMarketParamsStruct;
   onBehalfOf: string;
   recipient: string;
 };
 
 export type BuyCreditMarketOnBehalfOfParamsStructOutput = [
-  BuyCreditMarketWithCollectionParamsStructOutput,
+  BuyCreditMarketParamsStructOutput,
   string,
   string,
 ] & {
-  withCollectionParams: BuyCreditMarketWithCollectionParamsStructOutput;
+  params: BuyCreditMarketParamsStructOutput;
   onBehalfOf: string;
   recipient: string;
 };
@@ -316,6 +306,8 @@ export type SellCreditMarketParamsStruct = {
   deadline: BigNumberish;
   maxAPR: BigNumberish;
   exactAmountIn: boolean;
+  collectionId: BigNumberish;
+  rateProvider: string;
 };
 
 export type SellCreditMarketParamsStructOutput = [
@@ -326,6 +318,8 @@ export type SellCreditMarketParamsStructOutput = [
   BigNumber,
   BigNumber,
   boolean,
+  BigNumber,
+  string,
 ] & {
   lender: string;
   creditPositionId: BigNumber;
@@ -334,20 +328,6 @@ export type SellCreditMarketParamsStructOutput = [
   deadline: BigNumber;
   maxAPR: BigNumber;
   exactAmountIn: boolean;
-};
-
-export type SellCreditMarketWithCollectionParamsStruct = {
-  params: SellCreditMarketParamsStruct;
-  collectionId: BigNumberish;
-  rateProvider: string;
-};
-
-export type SellCreditMarketWithCollectionParamsStructOutput = [
-  SellCreditMarketParamsStructOutput,
-  BigNumber,
-  string,
-] & {
-  params: SellCreditMarketParamsStructOutput;
   collectionId: BigNumber;
   rateProvider: string;
 };
@@ -478,6 +458,8 @@ export type LiquidateWithReplacementParamsStruct = {
   minimumCollateralProfit: BigNumberish;
   deadline: BigNumberish;
   minAPR: BigNumberish;
+  collectionId: BigNumberish;
+  rateProvider: string;
 };
 
 export type LiquidateWithReplacementParamsStructOutput = [
@@ -486,26 +468,14 @@ export type LiquidateWithReplacementParamsStructOutput = [
   BigNumber,
   BigNumber,
   BigNumber,
+  BigNumber,
+  string,
 ] & {
   debtPositionId: BigNumber;
   borrower: string;
   minimumCollateralProfit: BigNumber;
   deadline: BigNumber;
   minAPR: BigNumber;
-};
-
-export type LiquidateWithReplacementWithCollectionParamsStruct = {
-  params: LiquidateWithReplacementParamsStruct;
-  collectionId: BigNumberish;
-  rateProvider: string;
-};
-
-export type LiquidateWithReplacementWithCollectionParamsStructOutput = [
-  LiquidateWithReplacementParamsStructOutput,
-  BigNumber,
-  string,
-] & {
-  params: LiquidateWithReplacementParamsStructOutput;
   collectionId: BigNumber;
   rateProvider: string;
 };
@@ -575,17 +545,17 @@ export type SellCreditLimitOnBehalfOfParamsStructOutput = [
 ] & { params: SellCreditLimitParamsStructOutput; onBehalfOf: string };
 
 export type SellCreditMarketOnBehalfOfParamsStruct = {
-  withCollectionParams: SellCreditMarketWithCollectionParamsStruct;
+  params: SellCreditMarketParamsStruct;
   onBehalfOf: string;
   recipient: string;
 };
 
 export type SellCreditMarketOnBehalfOfParamsStructOutput = [
-  SellCreditMarketWithCollectionParamsStructOutput,
+  SellCreditMarketParamsStructOutput,
   string,
   string,
 ] & {
-  withCollectionParams: SellCreditMarketWithCollectionParamsStructOutput;
+  params: SellCreditMarketParamsStructOutput;
   onBehalfOf: string;
   recipient: string;
 };
@@ -714,8 +684,8 @@ export interface SizeInterface extends utils.Interface {
     "UPGRADE_INTERFACE_VERSION()": FunctionFragment;
     "buyCreditLimit((uint256,(uint256[],int256[],uint256[])))": FunctionFragment;
     "buyCreditLimitOnBehalfOf(((uint256,(uint256[],int256[],uint256[])),address))": FunctionFragment;
-    "buyCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool))": FunctionFragment;
-    "buyCreditMarketOnBehalfOf((((address,uint256,uint256,uint256,uint256,uint256,bool),uint256,address),address,address))": FunctionFragment;
+    "buyCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool,uint256,address))": FunctionFragment;
+    "buyCreditMarketOnBehalfOf(((address,uint256,uint256,uint256,uint256,uint256,bool,uint256,address),address,address))": FunctionFragment;
     "claim((uint256))": FunctionFragment;
     "collateralRatio(address)": FunctionFragment;
     "compensate((uint256,uint256,uint256))": FunctionFragment;
@@ -728,14 +698,14 @@ export interface SizeInterface extends utils.Interface {
     "depositOnBehalfOf(((address,uint256,address),address))": FunctionFragment;
     "feeConfig()": FunctionFragment;
     "getBorrowOfferAPR(address,uint256,address,uint256)": FunctionFragment;
-    "getBuyCreditMarketSwapData(((address,uint256,uint256,uint256,uint256,uint256,bool),uint256,address))": FunctionFragment;
+    "getBuyCreditMarketSwapData((address,uint256,uint256,uint256,uint256,uint256,bool,uint256,address))": FunctionFragment;
     "getCreditPosition(uint256)": FunctionFragment;
     "getDebtPosition(uint256)": FunctionFragment;
     "getLoanOfferAPR(address,uint256,address,uint256)": FunctionFragment;
     "getLoanStatus(uint256)": FunctionFragment;
     "getPositionsCount()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
-    "getSellCreditMarketSwapData(((address,uint256,uint256,uint256,uint256,uint256,bool),uint256,address))": FunctionFragment;
+    "getSellCreditMarketSwapData((address,uint256,uint256,uint256,uint256,uint256,bool,uint256,address))": FunctionFragment;
     "getUserDefinedBorrowOfferAPR(address,uint256)": FunctionFragment;
     "getUserDefinedCopyBorrowOfferConfig(address)": FunctionFragment;
     "getUserDefinedCopyLoanOfferConfig(address)": FunctionFragment;
@@ -748,8 +718,7 @@ export interface SizeInterface extends utils.Interface {
     "isDebtPositionId(uint256)": FunctionFragment;
     "isDebtPositionLiquidatable(uint256)": FunctionFragment;
     "liquidate((uint256,uint256,uint256))": FunctionFragment;
-    "liquidateWithReplacement((uint256,address,uint256,uint256,uint256))": FunctionFragment;
-    "liquidateWithReplacementWithCollection(((uint256,address,uint256,uint256,uint256),uint256,address))": FunctionFragment;
+    "liquidateWithReplacement((uint256,address,uint256,uint256,uint256,uint256,address))": FunctionFragment;
     "multicall(bytes[])": FunctionFragment;
     "oracle()": FunctionFragment;
     "partialRepay((uint256,uint256,address))": FunctionFragment;
@@ -764,8 +733,8 @@ export interface SizeInterface extends utils.Interface {
     "selfLiquidateOnBehalfOf(((uint256),address,address))": FunctionFragment;
     "sellCreditLimit((uint256,(uint256[],int256[],uint256[])))": FunctionFragment;
     "sellCreditLimitOnBehalfOf(((uint256,(uint256[],int256[],uint256[])),address))": FunctionFragment;
-    "sellCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool))": FunctionFragment;
-    "sellCreditMarketOnBehalfOf((((address,uint256,uint256,uint256,uint256,uint256,bool),uint256,address),address,address))": FunctionFragment;
+    "sellCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool,uint256,address))": FunctionFragment;
+    "sellCreditMarketOnBehalfOf(((address,uint256,uint256,uint256,uint256,uint256,bool,uint256,address),address,address))": FunctionFragment;
     "setUserConfiguration((address,uint256,bool,bool,uint256[]))": FunctionFragment;
     "setUserConfigurationOnBehalfOf(((address,uint256,bool,bool,uint256[]),address))": FunctionFragment;
     "setVariablePoolBorrowRate(uint128)": FunctionFragment;
@@ -821,7 +790,6 @@ export interface SizeInterface extends utils.Interface {
       | "isDebtPositionLiquidatable"
       | "liquidate"
       | "liquidateWithReplacement"
-      | "liquidateWithReplacementWithCollection"
       | "multicall"
       | "oracle"
       | "partialRepay"
@@ -920,7 +888,7 @@ export interface SizeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getBuyCreditMarketSwapData",
-    values: [BuyCreditMarketWithCollectionParamsStruct],
+    values: [BuyCreditMarketParamsStruct],
   ): string;
   encodeFunctionData(
     functionFragment: "getCreditPosition",
@@ -948,7 +916,7 @@ export interface SizeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getSellCreditMarketSwapData",
-    values: [SellCreditMarketWithCollectionParamsStruct],
+    values: [SellCreditMarketParamsStruct],
   ): string;
   encodeFunctionData(
     functionFragment: "getUserDefinedBorrowOfferAPR",
@@ -1004,10 +972,6 @@ export interface SizeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "liquidateWithReplacement",
     values: [LiquidateWithReplacementParamsStruct],
-  ): string;
-  encodeFunctionData(
-    functionFragment: "liquidateWithReplacementWithCollection",
-    values: [LiquidateWithReplacementWithCollectionParamsStruct],
   ): string;
   encodeFunctionData(
     functionFragment: "multicall",
@@ -1231,10 +1195,6 @@ export interface SizeInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "liquidate", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "liquidateWithReplacement",
-    data: BytesLike,
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "liquidateWithReplacementWithCollection",
     data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "multicall", data: BytesLike): Result;
@@ -1529,7 +1489,7 @@ export interface Size extends BaseContract {
     ): Promise<[BigNumber]>;
 
     getBuyCreditMarketSwapData(
-      withCollectionParams: BuyCreditMarketWithCollectionParamsStruct,
+      params: BuyCreditMarketParamsStruct,
       overrides?: CallOverrides,
     ): Promise<[BuyCreditMarket.SwapDataBuyCreditMarketStructOutput]>;
 
@@ -1563,7 +1523,7 @@ export interface Size extends BaseContract {
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     getSellCreditMarketSwapData(
-      withCollectionParams: SellCreditMarketWithCollectionParamsStruct,
+      params: SellCreditMarketParamsStruct,
       overrides?: CallOverrides,
     ): Promise<[SellCreditMarket.SwapDataSellCreditMarketStructOutput]>;
 
@@ -1637,11 +1597,6 @@ export interface Size extends BaseContract {
 
     liquidateWithReplacement(
       params: LiquidateWithReplacementParamsStruct,
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    liquidateWithReplacementWithCollection(
-      withCollectionParams: LiquidateWithReplacementWithCollectionParamsStruct,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
@@ -1851,7 +1806,7 @@ export interface Size extends BaseContract {
   ): Promise<BigNumber>;
 
   getBuyCreditMarketSwapData(
-    withCollectionParams: BuyCreditMarketWithCollectionParamsStruct,
+    params: BuyCreditMarketParamsStruct,
     overrides?: CallOverrides,
   ): Promise<BuyCreditMarket.SwapDataBuyCreditMarketStructOutput>;
 
@@ -1883,7 +1838,7 @@ export interface Size extends BaseContract {
   getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   getSellCreditMarketSwapData(
-    withCollectionParams: SellCreditMarketWithCollectionParamsStruct,
+    params: SellCreditMarketParamsStruct,
     overrides?: CallOverrides,
   ): Promise<SellCreditMarket.SwapDataSellCreditMarketStructOutput>;
 
@@ -1957,11 +1912,6 @@ export interface Size extends BaseContract {
 
   liquidateWithReplacement(
     params: LiquidateWithReplacementParamsStruct,
-    overrides?: PayableOverrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  liquidateWithReplacementWithCollection(
-    withCollectionParams: LiquidateWithReplacementWithCollectionParamsStruct,
     overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
@@ -2171,7 +2121,7 @@ export interface Size extends BaseContract {
     ): Promise<BigNumber>;
 
     getBuyCreditMarketSwapData(
-      withCollectionParams: BuyCreditMarketWithCollectionParamsStruct,
+      params: BuyCreditMarketParamsStruct,
       overrides?: CallOverrides,
     ): Promise<BuyCreditMarket.SwapDataBuyCreditMarketStructOutput>;
 
@@ -2205,7 +2155,7 @@ export interface Size extends BaseContract {
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     getSellCreditMarketSwapData(
-      withCollectionParams: SellCreditMarketWithCollectionParamsStruct,
+      params: SellCreditMarketParamsStruct,
       overrides?: CallOverrides,
     ): Promise<SellCreditMarket.SwapDataSellCreditMarketStructOutput>;
 
@@ -2279,16 +2229,6 @@ export interface Size extends BaseContract {
 
     liquidateWithReplacement(
       params: LiquidateWithReplacementParamsStruct,
-      overrides?: CallOverrides,
-    ): Promise<
-      [BigNumber, BigNumber] & {
-        liquidatorProfitCollateralToken: BigNumber;
-        liquidatorProfitBorrowToken: BigNumber;
-      }
-    >;
-
-    liquidateWithReplacementWithCollection(
-      withCollectionParams: LiquidateWithReplacementWithCollectionParamsStruct,
       overrides?: CallOverrides,
     ): Promise<
       [BigNumber, BigNumber] & {
@@ -2553,7 +2493,7 @@ export interface Size extends BaseContract {
     ): Promise<BigNumber>;
 
     getBuyCreditMarketSwapData(
-      withCollectionParams: BuyCreditMarketWithCollectionParamsStruct,
+      params: BuyCreditMarketParamsStruct,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -2588,7 +2528,7 @@ export interface Size extends BaseContract {
     ): Promise<BigNumber>;
 
     getSellCreditMarketSwapData(
-      withCollectionParams: SellCreditMarketWithCollectionParamsStruct,
+      params: SellCreditMarketParamsStruct,
       overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
@@ -2659,11 +2599,6 @@ export interface Size extends BaseContract {
 
     liquidateWithReplacement(
       params: LiquidateWithReplacementParamsStruct,
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    liquidateWithReplacementWithCollection(
-      withCollectionParams: LiquidateWithReplacementWithCollectionParamsStruct,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
@@ -2871,7 +2806,7 @@ export interface Size extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getBuyCreditMarketSwapData(
-      withCollectionParams: BuyCreditMarketWithCollectionParamsStruct,
+      params: BuyCreditMarketParamsStruct,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -2906,7 +2841,7 @@ export interface Size extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getSellCreditMarketSwapData(
-      withCollectionParams: SellCreditMarketWithCollectionParamsStruct,
+      params: SellCreditMarketParamsStruct,
       overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
@@ -2980,11 +2915,6 @@ export interface Size extends BaseContract {
 
     liquidateWithReplacement(
       params: LiquidateWithReplacementParamsStruct,
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    liquidateWithReplacementWithCollection(
-      withCollectionParams: LiquidateWithReplacementWithCollectionParamsStruct,
       overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 

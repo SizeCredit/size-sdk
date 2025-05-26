@@ -3,15 +3,13 @@ import {
   WithdrawParamsStruct,
   BuyCreditLimitParamsStruct,
   BuyCreditMarketParamsStruct,
-  BuyCreditMarketWithCollectionParamsStruct,
   SellCreditLimitParamsStruct,
   SellCreditMarketParamsStruct,
-  SellCreditMarketWithCollectionParamsStruct,
   LiquidateWithReplacementParamsStruct,
   SelfLiquidateParamsStruct,
   SetUserConfigurationParamsStruct,
   CopyLimitOrdersParamsStruct,
-} from "../types-v1_8/ethers-contracts/Size";
+} from "../types/ethers-contracts/Size";
 
 type Address = `0x${string}`;
 
@@ -20,10 +18,8 @@ export type MarketFunctionName =
   | "withdraw"
   | "buyCreditLimit"
   | "buyCreditMarket"
-  | "buyCreditMarketWithCollection"
   | "sellCreditLimit"
   | "sellCreditMarket"
-  | "sellCreditMarketWithCollection"
   | "liquidateWithReplacement"
   | "selfLiquidate"
   | "setUserConfiguration"
@@ -34,10 +30,8 @@ export type MarketOperationParams =
   | WithdrawParamsStruct
   | BuyCreditLimitParamsStruct
   | BuyCreditMarketParamsStruct
-  | BuyCreditMarketWithCollectionParamsStruct
   | SellCreditLimitParamsStruct
   | SellCreditMarketParamsStruct
-  | SellCreditMarketWithCollectionParamsStruct
   | LiquidateWithReplacementParamsStruct
   | SelfLiquidateParamsStruct
   | SetUserConfigurationParamsStruct
@@ -95,17 +89,6 @@ export function buyCreditMarket(
   };
 }
 
-export function buyCreditMarketWithCollection(
-  market: Address,
-  params: BuyCreditMarketWithCollectionParamsStruct,
-): MarketOperation<BuyCreditMarketWithCollectionParamsStruct> {
-  return {
-    market,
-    functionName: "buyCreditMarketWithCollection",
-    params,
-  };
-}
-
 export function sellCreditLimit(
   market: Address,
   params: SellCreditLimitParamsStruct,
@@ -124,18 +107,6 @@ export function sellCreditMarket(
   return {
     market,
     functionName: "sellCreditMarket",
-    params,
-  };
-}
-
-export function sellCreditMarketWithCollection(
-  market: Address,
-  // withCollectionParams: SellCreditMarketWithCollectionParamsStruct,
-  params: SellCreditMarketWithCollectionParamsStruct,
-): MarketOperation<SellCreditMarketWithCollectionParamsStruct> {
-  return {
-    market,
-    functionName: "sellCreditMarketWithCollection",
     params,
   };
 }

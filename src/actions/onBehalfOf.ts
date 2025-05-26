@@ -13,14 +13,12 @@ import {
   WithdrawParamsStruct,
   BuyCreditLimitParamsStruct,
   BuyCreditMarketParamsStruct,
-  BuyCreditMarketWithCollectionParamsStruct,
   SellCreditLimitParamsStruct,
   SellCreditMarketParamsStruct,
-  SellCreditMarketWithCollectionParamsStruct,
   SelfLiquidateParamsStruct,
   SetUserConfigurationParamsStruct,
   CopyLimitOrdersParamsStruct,
-} from "../types-v1_8/ethers-contracts/Size";
+} from "../types/ethers-contracts/Size";
 import {
   MarketFunctionName,
   MarketOperation,
@@ -44,11 +42,7 @@ export type OnBehalfOfFunctionName =
 export const MarketFunctionNameToOnBehalfOfFunctionName: Record<
   Exclude<
     MarketFunctionName,
-    | "repay"
-    | "liquidate"
-    | "liquidateWithReplacement"
-    | "buyCreditMarketWithCollection"
-    | "sellCreditMarketWithCollection"
+    "repay" | "liquidate" | "liquidateWithReplacement"
   >,
   OnBehalfOfFunctionName
 > = {
@@ -129,16 +123,16 @@ export function buyCreditLimitOnBehalfOf(
 }
 
 export function buyCreditMarketOnBehalfOf(
-  withCollectionParams: MarketOperation<BuyCreditMarketWithCollectionParamsStruct>,
+  params: MarketOperation<BuyCreditMarketParamsStruct>,
   onBehalfOf: Address,
   recipient?: Address,
 ): OnBehalfOfOperation<BuyCreditMarketOnBehalfOfParamsStruct> {
   return {
-    market: withCollectionParams.market,
+    market: params.market,
     functionName: "buyCreditMarketOnBehalfOf",
     action: Action.BUY_CREDIT_MARKET,
     externalParams: {
-      withCollectionParams: withCollectionParams.params,
+      params: params.params,
       onBehalfOf,
       recipient: recipient ?? onBehalfOf,
     },
@@ -161,16 +155,16 @@ export function sellCreditLimitOnBehalfOf(
 }
 
 export function sellCreditMarketOnBehalfOf(
-  withCollectionParams: MarketOperation<SellCreditMarketWithCollectionParamsStruct>,
+  params: MarketOperation<SellCreditMarketParamsStruct>,
   onBehalfOf: Address,
   recipient?: Address,
 ): OnBehalfOfOperation<SellCreditMarketOnBehalfOfParamsStruct> {
   return {
-    market: withCollectionParams.market,
+    market: params.market,
     functionName: "sellCreditMarketOnBehalfOf",
     action: Action.SELL_CREDIT_MARKET,
     externalParams: {
-      withCollectionParams: withCollectionParams.params,
+      params: params.params,
       onBehalfOf,
       recipient: recipient ?? onBehalfOf,
     },
