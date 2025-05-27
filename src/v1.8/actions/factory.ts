@@ -1,5 +1,5 @@
 import { BigNumberish } from "ethers";
-import { Address } from "../types";
+import { Address } from "../../types";
 
 type FactoryFunctionName =
   | "subscribeToCollections"

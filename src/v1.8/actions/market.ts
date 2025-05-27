@@ -1,4 +1,4 @@
-import { Address } from "../types";
+import { Address } from "../../types";
 import {
   DepositParamsStruct,
   WithdrawParamsStruct,
@@ -10,7 +10,7 @@ import {
   SelfLiquidateParamsStruct,
   SetUserConfigurationParamsStruct,
   CopyLimitOrdersParamsStruct,
-} from "../types/ethers-contracts/Size";
+} from "../types-v1_8/ethers-contracts/Size";
 
 export type MarketFunctionName =
   | "deposit"

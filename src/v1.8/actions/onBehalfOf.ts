@@ -1,5 +1,5 @@
-import { Action, FunctionNameToAction } from "../Authorization";
-import { Address } from "../types";
+import { Action, FunctionNameToAction } from "../../Authorization";
+import { Address } from "../../types";
 import {
   DepositOnBehalfOfParamsStruct,
   SetUserConfigurationOnBehalfOfParamsStruct,
@@ -19,7 +19,7 @@ import {
   SelfLiquidateParamsStruct,
   SetUserConfigurationParamsStruct,
   CopyLimitOrdersParamsStruct,
-} from "../types/ethers-contracts/Size";
+} from "../types-v1_8/ethers-contracts/Size";
 import {
   MarketFunctionName,
   MarketOperation,

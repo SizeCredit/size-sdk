@@ -1,11 +1,11 @@
 import { ethers } from "ethers";
-import SizeABI from "../abi/Size.json";
-import SizeFactoryABI from "../abi/SizeFactory.json";
+import SizeABI from "../../abi/Size.json";
+import SizeFactoryABI from "../../abi/SizeFactory.json";
 import { MarketOperation } from "../actions/market";
 import { FactoryOperation } from "../actions/factory";
-import Authorization, { ActionsBitmap, type Action } from "../Authorization";
+import Authorization, { ActionsBitmap, type Action } from "../../Authorization";
 import { onBehalfOfOperation } from "../actions/onBehalfOf";
-import { Address } from "../types";
+import { Address } from "../../types";
 
 const ISize = new ethers.utils.Interface(SizeABI.abi);
 const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
