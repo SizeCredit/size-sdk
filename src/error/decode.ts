@@ -6,7 +6,25 @@ import IERC20Errors from "../erc20/abi/IERC20Errors.json";
 import selector from "../helpers/selector";
 
 export class ErrorDecoder {
-  constructor() {}
+  private readonly abi: ethers.utils.Interface;
+  constructor() {
+    const set = new Set();
+    const abi = [
+      ...ErrorsV1_8.abi,
+      ...ErrorsV1_7.abi,
+      ...CollectionsManagerV1_8.abi,
+      ...IERC20Errors.abi,
+    ];
+    const deduped = abi
+      .filter((abiItem) => abiItem.type === "error")
+      .filter((abiItem) => {
+        const errSelector = `${abiItem.name}(${abiItem.inputs.map((input) => input.type).join(",")})`;
+        if (set.has(errSelector)) return false;
+        set.add(errSelector);
+        return true;
+      });
+    this.abi = new ethers.utils.Interface(deduped);
+  }
 
   decode(data: string): string {
     if (data.startsWith(`0x${selector("Error(string)")}`)) {
@@ -22,14 +40,7 @@ export class ErrorDecoder {
       );
       return decoded;
     } else {
-      const abi = [
-        ...ErrorsV1_8.abi,
-        ...ErrorsV1_7.abi,
-        ...CollectionsManagerV1_8.abi,
-        ...IERC20Errors.abi,
-      ];
-      const contract = new ethers.utils.Interface(abi);
-      const decodedError = contract.parseError(data);
+      const decodedError = this.abi.parseError(data);
       const stringifyError = (decodedError: any) => {
         const args = decodedError.args
           .map((arg: any) => {
