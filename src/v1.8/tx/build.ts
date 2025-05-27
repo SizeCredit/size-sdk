@@ -8,9 +8,6 @@ import { onBehalfOfOperation } from "../actions/onBehalfOf";
 import { Address } from "../../types";
 import { TxArgs } from "../../index";
 
-const ISize = new ethers.utils.Interface(SizeABI.abi);
-const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
-
 function isMarketOperation(
   operation: MarketOperation | FactoryOperation,
 ): operation is MarketOperation {
@@ -26,9 +23,13 @@ interface Subcall {
 
 export class TxBuilder {
   private readonly sizeFactory: Address;
+  private readonly ISize: ethers.utils.Interface;
+  private readonly ISizeFactory: ethers.utils.Interface;
 
   constructor(sizeFactory: Address) {
     this.sizeFactory = sizeFactory;
+    this.ISize = new ethers.utils.Interface(SizeABI.abi);
+    this.ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
   }
 
   private getSubcalls(
@@ -48,9 +49,9 @@ export class TxBuilder {
         );
         return {
           target: market,
-          calldata: ISize.encodeFunctionData(functionName, [params]),
+          calldata: this.ISize.encodeFunctionData(functionName, [params]),
           onBehalfOfCalldata: onBehalfOfOp
-            ? ISize.encodeFunctionData(onBehalfOfOp.functionName, [
+            ? this.ISize.encodeFunctionData(onBehalfOfOp.functionName, [
                 onBehalfOfOp.externalParams,
               ])
             : undefined,
@@ -58,7 +59,7 @@ export class TxBuilder {
         };
       } else {
         const { functionName, params } = operation;
-        const calldata = ISizeFactory.encodeFunctionData(functionName, [
+        const calldata = this.ISizeFactory.encodeFunctionData(functionName, [
           params,
         ]);
         return {
@@ -88,7 +89,7 @@ export class TxBuilder {
     return subcalls.map((op) =>
       op.target === this.sizeFactory
         ? op.calldata
-        : ISizeFactory.encodeFunctionData("callMarket", [
+        : this.ISizeFactory.encodeFunctionData("callMarket", [
             op.target,
             op.onBehalfOfCalldata,
           ]),
@@ -99,14 +100,14 @@ export class TxBuilder {
     subcalls: Subcall[],
   ): [string, string] | [] {
     if (this.requiresAuthorization(subcalls)) {
-      const auth = ISizeFactory.encodeFunctionData("setAuthorization", [
+      const auth = this.ISizeFactory.encodeFunctionData("setAuthorization", [
         this.sizeFactory,
         this.getActionsBitmap(subcalls),
       ]);
-      const nullAuth = ISizeFactory.encodeFunctionData("setAuthorization", [
-        this.sizeFactory,
-        Authorization.nullActionsBitmap(),
-      ]);
+      const nullAuth = this.ISizeFactory.encodeFunctionData(
+        "setAuthorization",
+        [this.sizeFactory, Authorization.nullActionsBitmap()],
+      );
       return [auth, nullAuth];
     } else {
       return [];
@@ -135,7 +136,7 @@ export class TxBuilder {
       const [maybeAuth, maybeNullAuth] =
         this.getAuthorizationSubcallsDatas(subcalls);
 
-      const multicall = ISizeFactory.encodeFunctionData("multicall", [
+      const multicall = this.ISizeFactory.encodeFunctionData("multicall", [
         [maybeAuth, ...sizeFactorySubcallsDatas, maybeNullAuth].filter(Boolean),
       ]);
       return [

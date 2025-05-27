@@ -6,9 +6,6 @@ import { FactoryOperation } from "../actions/factory";
 import { TxArgs } from "../../index";
 import { Address } from "../../types";
 
-const ISize = new ethers.utils.Interface(SizeABI.abi);
-const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
-
 function isMarketOperation(
   operation: MarketOperation | FactoryOperation,
 ): operation is MarketOperation {
@@ -17,9 +14,13 @@ function isMarketOperation(
 
 export class TxBuilder {
   private readonly sizeFactory: Address;
+  private readonly ISize: ethers.utils.Interface;
+  private readonly ISizeFactory: ethers.utils.Interface;
 
   constructor(sizeFactory: Address) {
     this.sizeFactory = sizeFactory;
+    this.ISize = new ethers.utils.Interface(SizeABI.abi);
+    this.ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
   }
 
   build(
@@ -30,14 +31,14 @@ export class TxBuilder {
     return operations.map((operation) => {
       if (isMarketOperation(operation)) {
         const { market, functionName, params } = operation;
-        const calldata = ISize.encodeFunctionData(functionName, [params]);
+        const calldata = this.ISize.encodeFunctionData(functionName, [params]);
         return {
           target: market,
           data: calldata,
         };
       } else {
         const { functionName, params } = operation;
-        const calldata = ISizeFactory.encodeFunctionData(functionName, [
+        const calldata = this.ISizeFactory.encodeFunctionData(functionName, [
           params,
         ]);
         return {
