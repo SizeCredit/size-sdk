@@ -1,64 +1,123 @@
-import { MarketActions } from "./v1.8/actions/market";
-import { FactoryActions } from "./v1.8/actions/factory";
-import { buildTx } from "./v1.8/tx/build";
+import {
+  MarketActions as MarketActionsV1_8,
+  MarketOperation as MarketOperationV1_8,
+} from "./v1.8/actions/market";
+import {
+  FactoryActions as FactoryActionsV1_8,
+  FactoryOperation as FactoryOperationV1_8,
+} from "./v1.8/actions/factory";
+import {
+  MarketActions as MarketActionsV1_7,
+  MarketOperation as MarketOperationV1_7,
+} from "./v1.7/actions/market";
+import {
+  FactoryActions as FactoryActionsV1_7,
+  FactoryOperation as FactoryOperationV1_7,
+} from "./v1.7/actions/factory";
+import { buildTx as buildTxV1_8 } from "./v1.8/tx/build";
+import { buildTx as buildTxV1_7 } from "./v1.7/tx/build";
+
 import { FullCopy, NoCopy, NullCopy } from "./constants";
 import deadline from "./helpers/deadline";
-import { MarketOperation } from "./v1.8/actions/market";
-import { FactoryOperation } from "./v1.8/actions/factory";
 import { Address } from "./types";
+
+export interface TxArgs {
+  target: Address;
+  data: string;
+}
 
 type Version = "v1.7" | "v1.8";
 
-interface SDKParams {
+interface SDKParamsCommon {
   sizeFactory: Address;
-  collectionManager: Address;
   markets: Address[];
-  version: Version;
 }
 
-class SDK {
-  public readonly sizeFactory: Address;
-  public readonly collectionManager: Address;
-  public readonly markets: Address[];
-  public readonly version: Version;
-  public readonly market: MarketActions;
-  public readonly factory: FactoryActions;
+interface SDKParamsV1_8 extends SDKParamsCommon {
+  version: "v1.8";
+  collectionManager: Address;
+}
 
-  constructor(params: SDKParams) {
+interface SDKParamsV1_7 extends SDKParamsCommon {
+  version: "v1.7";
+  collectionManager?: never;
+}
+
+type SDKParams = SDKParamsV1_7 | SDKParamsV1_8;
+
+type MarketActionsByVersion<T extends Version> = T extends "v1.8"
+  ? MarketActionsV1_8
+  : MarketActionsV1_7;
+type FactoryActionsByVersion<T extends Version> = T extends "v1.8"
+  ? FactoryActionsV1_8
+  : FactoryActionsV1_7;
+
+class SDK<T extends Version> {
+  public readonly sizeFactory: Address;
+  public readonly collectionManager: Address | undefined;
+  public readonly markets: Address[];
+  public readonly version: T;
+  public readonly market: MarketActionsByVersion<T>;
+  public readonly factory: FactoryActionsByVersion<T>;
+
+  constructor(params: SDKParams & { version: T }) {
     this.sizeFactory = params.sizeFactory;
-    this.collectionManager = params.collectionManager;
     this.markets = params.markets;
     this.version = params.version;
 
     if (params.version === "v1.8") {
-      this.market = new MarketActions(this.markets);
-      this.factory = new FactoryActions(
+      this.collectionManager = (params as SDKParamsV1_8).collectionManager;
+      this.market = new MarketActionsV1_8(
+        this.markets,
+      ) as MarketActionsByVersion<T>;
+      this.factory = new FactoryActionsV1_8(
         this.sizeFactory,
         this.collectionManager,
-      );
+      ) as FactoryActionsByVersion<T>;
     } else {
-      // v1.7 implementation will be added later
-      throw new Error("v1.7 implementation not yet available");
+      this.market = new MarketActionsV1_7(
+        this.markets,
+      ) as MarketActionsByVersion<T>;
+      this.factory = new FactoryActionsV1_7(
+        this.sizeFactory,
+      ) as FactoryActionsByVersion<T>;
     }
   }
 
-  get tx(): {
-    build: (
-      onBehalfOf: Address,
-      operations: (MarketOperation | FactoryOperation)[],
-      recipient?: Address,
-    ) => ReturnType<typeof buildTx>;
-  } {
-    if (this.version === "v1.8") {
-      return {
+  private _buildTxV1_8 = (
+    onBehalfOf: Address,
+    operations: (MarketOperationV1_8 | FactoryOperationV1_8)[],
+    recipient?: Address,
+  ): TxArgs[] =>
+    buildTxV1_8(this.sizeFactory, onBehalfOf, operations, recipient);
+
+  private _buildTxV1_7 = (
+    onBehalfOf: Address,
+    operations: (MarketOperationV1_7 | FactoryOperationV1_7)[],
+    recipient?: Address,
+  ): TxArgs[] =>
+    buildTxV1_7(this.sizeFactory, onBehalfOf, operations, recipient);
+
+  get tx(): T extends "v1.8"
+    ? {
         build: (
           onBehalfOf: Address,
-          operations: (MarketOperation | FactoryOperation)[],
+          operations: (MarketOperationV1_8 | FactoryOperationV1_8)[],
           recipient?: Address,
-        ) => buildTx(this.sizeFactory, onBehalfOf, operations, recipient),
-      };
-    }
-    throw new Error("v1.7 implementation not yet available");
+        ) => TxArgs[];
+      }
+    : {
+        build: (
+          onBehalfOf: Address,
+          operations: (MarketOperationV1_7 | FactoryOperationV1_7)[],
+          recipient?: Address,
+        ) => TxArgs[];
+      } {
+    return (
+      this.version === "v1.8"
+        ? { build: this._buildTxV1_8 }
+        : { build: this._buildTxV1_7 }
+    ) as any;
   }
 
   get helpers() {

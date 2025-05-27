@@ -6,6 +6,7 @@ import { FactoryOperation } from "../actions/factory";
 import Authorization, { ActionsBitmap, type Action } from "../../Authorization";
 import { onBehalfOfOperation } from "../actions/onBehalfOf";
 import { Address } from "../../types";
+import { TxArgs } from "../../index";
 
 const ISize = new ethers.utils.Interface(SizeABI.abi);
 const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
@@ -108,26 +109,23 @@ function getAuthorizationSubcallsDatas(
   }
 }
 
-interface TxArgs {
-  target: Address;
-  data: string;
-}
-
 export function buildTx(
   sizeFactory: Address,
   onBehalfOf: Address,
   operations: (MarketOperation | FactoryOperation)[],
   recipient?: Address,
-): TxArgs {
+): TxArgs[] {
   const subcalls = getSubcalls(sizeFactory, operations, onBehalfOf, recipient);
 
   if (subcalls.length === 0) {
     throw new Error("[size-sdk] no operations to execute");
   } else if (subcalls.length == 1) {
-    return {
-      target: subcalls[0].target,
-      data: subcalls[0].calldata,
-    };
+    return [
+      {
+        target: subcalls[0].target,
+        data: subcalls[0].calldata,
+      },
+    ];
   } else {
     const sizeFactorySubcallsDatas = getSizeFactorySubcallsDatas(
       sizeFactory,
@@ -141,9 +139,11 @@ export function buildTx(
     const multicall = ISizeFactory.encodeFunctionData("multicall", [
       [maybeAuth, ...sizeFactorySubcallsDatas, maybeNullAuth].filter(Boolean),
     ]);
-    return {
-      target: sizeFactory,
-      data: multicall,
-    };
+    return [
+      {
+        target: sizeFactory,
+        data: multicall,
+      },
+    ];
   }
 }
