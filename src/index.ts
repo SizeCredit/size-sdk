@@ -17,7 +17,8 @@ import { FullCopy, NoCopy, NullCopy } from "./constants";
 import deadline from "./helpers/deadline";
 import { Address } from "./types";
 import { ERC20Actions, ERC20Operation } from "./erc20/actions";
-import { ErrorDecoder } from "./error/decode";
+import { ErrorDecoder } from "./decoder/error";
+import { CalldataDecoder } from "./decoder/calldata";
 import selector from "./helpers/selector";
 
 export interface TxArgs {
@@ -63,6 +64,7 @@ class SDK<T extends Version> {
   public readonly factory: FactoryActionsByVersion<T>;
   public readonly erc20: ERC20Actions;
   public readonly errorDecoder: ErrorDecoder;
+  public readonly calldataDecoder: CalldataDecoder;
 
   private readonly txBuilder: TxBuilderByVersion<T>;
 
@@ -71,6 +73,7 @@ class SDK<T extends Version> {
     this.version = params.version;
     this.erc20 = new ERC20Actions();
     this.errorDecoder = new ErrorDecoder();
+    this.calldataDecoder = new CalldataDecoder();
 
     if (params.version === "v1.8") {
       this.sizeFactory = (params as SDKParamsV1_8).sizeFactory;
@@ -132,7 +135,8 @@ class SDK<T extends Version> {
 
   get decode() {
     return {
-      errors: (data: string) => this.errorDecoder.decode(data),
+      error: (data: string) => this.errorDecoder.decode(data),
+      calldata: (data: string) => this.calldataDecoder.decode(data),
     };
   }
 
