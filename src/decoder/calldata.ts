@@ -80,6 +80,10 @@ export class CalldataDecoder {
         );
       }
 
+      if (input.type.startsWith("tuple") && typeof arg === "object") {
+        return this.formatTuple(arg, input, level);
+      }
+
       if (Array.isArray(arg)) {
         return "[" + arg.map((item: any) => item.toString()).join(", ") + "]";
       }
@@ -88,6 +92,48 @@ export class CalldataDecoder {
     });
 
     return `${name}(\n${indent(level + 1)}${formattedArgs.join(",\n" + indent(level + 1))}\n${indent(level)})`;
+  }
+
+  private formatTuple(
+    arg: any,
+    input: ethers.utils.ParamType,
+    level: number,
+  ): string {
+    const indent = (lvl: number) => "  ".repeat(lvl);
+    const components = input.components || [];
+
+    const namedArgs = components.map((component) => {
+      const value = arg[component.name];
+
+      // If the component is a tuple, recursively format it
+      if (component.type.startsWith("tuple") && typeof value === "object") {
+        return `${component.name}: ${this.formatTuple(value, component, level + 1)}`;
+      }
+
+      // If the component is an array of tuples, format each tuple
+      if (component.type.startsWith("tuple[]") && Array.isArray(value)) {
+        const formattedTuples = value.map((item: any) => {
+          // Use the array component's components for the tuple
+          const arrayComponent = component.arrayChildren;
+          if (!arrayComponent) {
+            return item.toString();
+          }
+          return this.formatTuple(item, arrayComponent, level + 2);
+        });
+        return `${component.name}: [\n${indent(level + 2)}${formattedTuples.join(",\n" + indent(level + 2))}\n${indent(level + 1)}]`;
+      }
+
+      return `${component.name}: ${value.toString()}`;
+    });
+
+    return (
+      "{\n" +
+      indent(level + 2) +
+      namedArgs.join(",\n" + indent(level + 2)) +
+      "\n" +
+      indent(level + 1) +
+      "}"
+    );
   }
 
   private tryDecodeNested(data: string, level: number): string {
