@@ -205,4 +205,41 @@ describe("size-sdk v1.7", () => {
       );
     });
   });
+
+  test("approve + deposit + borrow", async () => {
+    const txs = sdk.tx.build(alice, [
+      sdk.erc20.approve(usdc, market1, 100n),
+      sdk.market.deposit(market1, {
+        amount: 100n,
+        to: alice,
+        token: usdc,
+      }),
+      sdk.market.sellCreditMarket(market1, {
+        lender: bob,
+        creditPositionId: ethers.constants.MaxUint256,
+        amount: 100n,
+        tenor: 365n * 24n * 60n * 60n,
+        deadline: 1893456000n,
+        maxAPR: ethers.constants.MaxUint256,
+        exactAmountIn: false,
+      }),
+    ]);
+
+    expect(txs.length).toBe(3);
+
+    expect(txs[0].target).toBe(usdc);
+    expect(txs[0].data).toContain(selector("approve(address,uint256)"));
+
+    expect(txs[1].target).toBe(market1);
+    expect(txs[1].data).toContain(
+      selector("deposit((address,uint256,address))"),
+    );
+
+    expect(txs[2].target).toBe(market1);
+    expect(txs[2].data).toContain(
+      selector(
+        "sellCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool))",
+      ),
+    );
+  });
 });

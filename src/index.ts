@@ -16,6 +16,7 @@ import { TxBuilder as TxBuilderV1_7 } from "./v1.7/tx/build";
 import { FullCopy, NoCopy, NullCopy } from "./constants";
 import deadline from "./helpers/deadline";
 import { Address } from "./types";
+import { ERC20Actions, ERC20Operation } from "./erc20/actions";
 
 export interface TxArgs {
   target: Address;
@@ -61,11 +62,14 @@ class SDK<T extends Version> {
 
   public readonly market: MarketActionsByVersion<T>;
   public readonly factory: FactoryActionsByVersion<T>;
+  public readonly erc20: ERC20Actions;
+
   private readonly txBuilder: TxBuilderByVersion<T>;
 
   constructor(params: SDKParams & { version: T }) {
     this.markets = params.markets;
     this.version = params.version;
+    this.erc20 = new ERC20Actions();
 
     if (params.version === "v1.8") {
       this.sizeFactory = (params as SDKParamsV1_8).sizeFactory;
@@ -78,6 +82,7 @@ class SDK<T extends Version> {
       this.market = new MarketActionsV1_8(
         this.markets,
       ) as MarketActionsByVersion<T>;
+
       this.txBuilder = new TxBuilderV1_8(
         this.sizeFactory,
       ) as TxBuilderByVersion<T>;
@@ -86,6 +91,7 @@ class SDK<T extends Version> {
       this.market = new MarketActionsV1_7(
         this.markets,
       ) as MarketActionsByVersion<T>;
+
       this.txBuilder = new TxBuilderV1_7() as TxBuilderByVersion<T>;
     }
   }
@@ -94,14 +100,18 @@ class SDK<T extends Version> {
     ? {
         build: (
           onBehalfOf: Address,
-          operations: (MarketOperationV1_8 | FactoryOperationV1_8)[],
+          operations: (
+            | MarketOperationV1_8
+            | FactoryOperationV1_8
+            | ERC20Operation
+          )[],
           recipient?: Address,
         ) => TxArgs[];
       }
     : {
         build: (
           onBehalfOf: Address,
-          operations: MarketOperationV1_7[],
+          operations: (MarketOperationV1_7 | ERC20Operation)[],
           recipient?: Address,
         ) => TxArgs[];
       } {
@@ -109,8 +119,8 @@ class SDK<T extends Version> {
       build: (
         onBehalfOf: Address,
         operations: T extends "v1.8"
-          ? (MarketOperationV1_8 | FactoryOperationV1_8)[]
-          : MarketOperationV1_7[],
+          ? (MarketOperationV1_8 | FactoryOperationV1_8 | ERC20Operation)[]
+          : (MarketOperationV1_7 | ERC20Operation)[],
         recipient?: Address,
       ) => this.txBuilder.build(onBehalfOf, operations as any, recipient),
     } as any;
