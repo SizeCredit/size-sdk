@@ -3,6 +3,5 @@
 /* eslint-disable */
 export * as draftIerc6093Sol from "./draft-IERC6093.sol";
 export { Errors__factory } from "./Errors__factory";
-export { Events__factory } from "./Events__factory";
 export { Size__factory } from "./Size__factory";
 export { SizeFactory__factory } from "./SizeFactory__factory";

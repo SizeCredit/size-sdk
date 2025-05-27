@@ -1,8 +1,7 @@
 import { JSDOM } from "jsdom";
 import { describe, expect, test, beforeAll } from "@jest/globals";
 import SDK from "../src";
-import { BigNumber, ethers } from "ethers";
-import selector from "./selector";
+import { ethers } from "ethers";
 import {
   randomBigInt,
   randomAddress,
@@ -49,7 +48,7 @@ describe("size-sdk v1.7", () => {
       expect(txs.length).toBe(1);
       expect(txs[0].target).toBe(market1);
       expect(txs[0].data).toContain(
-        selector("deposit((address,uint256,address))"),
+        sdk.helpers.selector("deposit((address,uint256,address))"),
       );
     }
   });
@@ -83,7 +82,7 @@ describe("size-sdk v1.7", () => {
       expect(txs.length).toBe(1);
       expect(txs[0].target).toBe(market1);
       expect(txs[0].data).toContain(
-        selector(
+        sdk.helpers.selector(
           "sellCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool))",
         ),
       );
@@ -132,14 +131,20 @@ describe("size-sdk v1.7", () => {
       expect(txs.length).toBe(3);
       txs.forEach((tx) => {
         expect(tx.data).not.toContain(
-          selector("setAuthorization(address,uint256)"),
-        );
-        expect(tx.data).not.toContain(selector("callMarket(address,bytes)"));
-        expect(tx.data).not.toContain(
-          selector("depositOnBehalfOf(((address,uint256,address),address))"),
+          sdk.helpers.selector("setAuthorization(address,uint256)"),
         );
         expect(tx.data).not.toContain(
-          selector("withdrawOnBehalfOf(((address,uint256,address),address))"),
+          sdk.helpers.selector("callMarket(address,bytes)"),
+        );
+        expect(tx.data).not.toContain(
+          sdk.helpers.selector(
+            "depositOnBehalfOf(((address,uint256,address),address))",
+          ),
+        );
+        expect(tx.data).not.toContain(
+          sdk.helpers.selector(
+            "withdrawOnBehalfOf(((address,uint256,address),address))",
+          ),
         );
       });
     }
@@ -171,7 +176,9 @@ describe("size-sdk v1.7", () => {
       expect(txs.length).toBe(1);
       expect(txs[0].target).toBe(market2);
       expect(txs[0].data).toContain(
-        selector("setUserConfiguration((uint256,bool,bool,uint256[]))"),
+        sdk.helpers.selector(
+          "setUserConfiguration((uint256,bool,bool,uint256[]))",
+        ),
       );
     }
   });

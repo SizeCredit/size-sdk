@@ -6,7 +6,7 @@ export default function selector(
   functionName?: string,
 ): string {
   if (typeof s === "string") {
-    return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(s)).substring(2, 10);
+    return ethers.utils.id(s).slice(2, 10);
   } else {
     return s.getSighash(s.getFunction(functionName!)).substring(2, 10);
   }
