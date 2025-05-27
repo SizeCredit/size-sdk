@@ -1,17 +1,18 @@
 import { JSDOM } from "jsdom";
-import path from "path";
 import { describe, expect, test, beforeAll } from "@jest/globals";
 import SizeSDK from "../src/index";
 import { BigNumber, ethers } from "ethers";
-import { SizeFactory } from "../src/config";
 import selector from "./selector";
 import Authorization, { Action } from "../src/Authorization";
 import SizeABI from "../src/abi/Size.json";
-import SizeFactoryABI from "../src/abi/SizeFactory.json";
+import sizeFactoryABI from "../src/abi/SizeFactory.json";
 
 describe("size-sdk browser build", () => {
   let window: any;
-  let sdk: typeof SizeSDK;
+  let sdk: SizeSDK;
+
+  const sizeFactory = "0x000000000000000000000000000000000000ffff";
+  const collectionManager = "0x000000000000000000000000000000000000aaaa";
 
   const alice = "0x0000000000000000000000000000000000010000";
   const bob = "0x0000000000000000000000000000000000020000";
@@ -25,7 +26,7 @@ describe("size-sdk browser build", () => {
   const usdc = "0x0000000000000000000000000000000000008888";
 
   const ISize = new ethers.utils.Interface(SizeABI.abi);
-  const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
+  const ISizeFactory = new ethers.utils.Interface(sizeFactoryABI.abi);
 
   beforeAll(() => {
     const html = "<!DOCTYPE html><html><body></body></html>";
@@ -33,9 +34,12 @@ describe("size-sdk browser build", () => {
     window = dom.window;
     window.ethereum = {};
 
-    const distPath = path.resolve(__dirname, "../src/index.js");
-    const sizeModule = require(distPath);
-    sdk = sizeModule.default || sizeModule;
+    sdk = new SizeSDK({
+      sizeFactory,
+      collectionManager,
+      markets: [market1, market2],
+      version: "v1.8",
+    });
     window.sdk = sdk;
   });
 
@@ -105,7 +109,7 @@ describe("size-sdk browser build", () => {
       sdk.factory.subscribeToCollections([42n]),
       sdk.factory.unsubscribeFromCollections([13n]),
     ]);
-    expect(tx.target).toBe(SizeFactory);
+    expect(tx.target).toBe(sizeFactory);
     expect(tx.data).not.toContain(
       selector("setAuthorization(address,uint256)"),
     );
@@ -134,13 +138,13 @@ describe("size-sdk browser build", () => {
       }),
       sdk.factory.subscribeToCollections([42n]),
     ]);
-    expect(tx.target).toBe(SizeFactory);
+    expect(tx.target).toBe(sizeFactory);
     expect(tx.data).toContain(selector("setAuthorization(address,uint256)"));
     const iface = new ethers.utils.Interface([
       "function setAuthorization(address,uint256)",
     ]);
     const auth = iface.encodeFunctionData("setAuthorization", [
-      SizeFactory,
+      sizeFactory,
       Authorization.getActionsBitmap([
         Action.SET_USER_CONFIGURATION,
         Action.DEPOSIT,
@@ -206,7 +210,7 @@ describe("size-sdk browser build", () => {
       }),
     ]);
 
-    expect(tx.target).toBe(SizeFactory);
+    expect(tx.target).toBe(sizeFactory);
     expect(tx.data).toContain(selector(ISizeFactory, "setAuthorization"));
     expect(tx.data).toContain(selector(ISizeFactory, "callMarket"));
     expect(tx.data).toContain(selector(ISize, "depositOnBehalfOf"));

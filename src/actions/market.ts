@@ -44,112 +44,132 @@ export type MarketOperation<
   params: T;
 };
 
-export function deposit(
-  market: Address,
-  params: DepositParamsStruct,
-): MarketOperation<DepositParamsStruct> {
-  return {
-    market,
-    functionName: "deposit",
-    params,
-  };
-}
+export class MarketActions {
+  constructor(private readonly markets: Address[]) {}
 
-export function withdraw(
-  market: Address,
-  params: WithdrawParamsStruct,
-): MarketOperation<WithdrawParamsStruct> {
-  return {
-    market,
-    functionName: "withdraw",
-    params,
-  };
-}
+  deposit(
+    market: Address,
+    params: DepositParamsStruct,
+  ): MarketOperation<DepositParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "deposit",
+      params,
+    };
+  }
 
-export function buyCreditLimit(
-  market: Address,
-  params: BuyCreditLimitParamsStruct,
-): MarketOperation<BuyCreditLimitParamsStruct> {
-  return {
-    market,
-    functionName: "buyCreditLimit",
-    params,
-  };
-}
+  withdraw(
+    market: Address,
+    params: WithdrawParamsStruct,
+  ): MarketOperation<WithdrawParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "withdraw",
+      params,
+    };
+  }
 
-export function buyCreditMarket(
-  market: Address,
-  params: BuyCreditMarketParamsStruct,
-): MarketOperation<BuyCreditMarketParamsStruct> {
-  return {
-    market,
-    functionName: "buyCreditMarket",
-    params,
-  };
-}
+  buyCreditLimit(
+    market: Address,
+    params: BuyCreditLimitParamsStruct,
+  ): MarketOperation<BuyCreditLimitParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "buyCreditLimit",
+      params,
+    };
+  }
 
-export function sellCreditLimit(
-  market: Address,
-  params: SellCreditLimitParamsStruct,
-): MarketOperation<SellCreditLimitParamsStruct> {
-  return {
-    market,
-    functionName: "sellCreditLimit",
-    params,
-  };
-}
+  buyCreditMarket(
+    market: Address,
+    params: BuyCreditMarketParamsStruct,
+  ): MarketOperation<BuyCreditMarketParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "buyCreditMarket",
+      params,
+    };
+  }
 
-export function sellCreditMarket(
-  market: Address,
-  params: SellCreditMarketParamsStruct,
-): MarketOperation<SellCreditMarketParamsStruct> {
-  return {
-    market,
-    functionName: "sellCreditMarket",
-    params,
-  };
-}
+  sellCreditLimit(
+    market: Address,
+    params: SellCreditLimitParamsStruct,
+  ): MarketOperation<SellCreditLimitParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "sellCreditLimit",
+      params,
+    };
+  }
 
-export function liquidateWithReplacement(
-  market: Address,
-  params: LiquidateWithReplacementParamsStruct,
-): MarketOperation<LiquidateWithReplacementParamsStruct> {
-  return {
-    market,
-    functionName: "liquidateWithReplacement",
-    params,
-  };
-}
+  sellCreditMarket(
+    market: Address,
+    params: SellCreditMarketParamsStruct,
+  ): MarketOperation<SellCreditMarketParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "sellCreditMarket",
+      params,
+    };
+  }
 
-export function selfLiquidate(
-  market: Address,
-  params: SelfLiquidateParamsStruct,
-): MarketOperation<SelfLiquidateParamsStruct> {
-  return {
-    market,
-    functionName: "selfLiquidate",
-    params,
-  };
-}
+  liquidateWithReplacement(
+    market: Address,
+    params: LiquidateWithReplacementParamsStruct,
+  ): MarketOperation<LiquidateWithReplacementParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "liquidateWithReplacement",
+      params,
+    };
+  }
 
-export function setUserConfiguration(
-  market: Address,
-  params: SetUserConfigurationParamsStruct,
-): MarketOperation<SetUserConfigurationParamsStruct> {
-  return {
-    market,
-    functionName: "setUserConfiguration",
-    params,
-  };
-}
+  selfLiquidate(
+    market: Address,
+    params: SelfLiquidateParamsStruct,
+  ): MarketOperation<SelfLiquidateParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "selfLiquidate",
+      params,
+    };
+  }
 
-export function copyLimitOrders(
-  market: Address,
-  params: CopyLimitOrdersParamsStruct,
-): MarketOperation<CopyLimitOrdersParamsStruct> {
-  return {
-    market,
-    functionName: "copyLimitOrders",
-    params,
-  };
+  setUserConfiguration(
+    market: Address,
+    params: SetUserConfigurationParamsStruct,
+  ): MarketOperation<SetUserConfigurationParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "setUserConfiguration",
+      params,
+    };
+  }
+
+  copyLimitOrders(
+    market: Address,
+    params: CopyLimitOrdersParamsStruct,
+  ): MarketOperation<CopyLimitOrdersParamsStruct> {
+    this.validateMarket(market);
+    return {
+      market,
+      functionName: "copyLimitOrders",
+      params,
+    };
+  }
+
+  private validateMarket(market: Address) {
+    if (!this.markets.includes(market)) {
+      throw new Error(`[size-sdk] Invalid market address: ${market}`);
+    }
+  }
 }

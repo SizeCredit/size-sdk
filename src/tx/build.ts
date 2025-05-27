@@ -1,20 +1,19 @@
 import { ethers } from "ethers";
 import SizeABI from "../abi/Size.json";
 import SizeFactoryABI from "../abi/SizeFactory.json";
-import { SizeFactory } from "../config";
 import { MarketOperation } from "../actions/market";
 import { FactoryOperation } from "../actions/factory";
-import Authorization, {
-  type Action,
-  type ActionsBitmap,
-} from "../Authorization";
+import Authorization, { ActionsBitmap, type Action } from "../Authorization";
 import { onBehalfOfOperation } from "../actions/onBehalfOf";
+import { Address } from "../types";
 
-type Address = `0x${string}`;
+const ISize = new ethers.utils.Interface(SizeABI.abi);
+const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
 
-interface TxArgs {
-  target: Address;
-  data: string;
+function isMarketOperation(
+  operation: MarketOperation | FactoryOperation,
+): operation is MarketOperation {
+  return "market" in operation;
 }
 
 interface Subcall {
@@ -24,16 +23,8 @@ interface Subcall {
   action?: Action;
 }
 
-function isMarketOperation(
-  op: MarketOperation | FactoryOperation,
-): op is MarketOperation {
-  return "market" in op;
-}
-
-const ISize = new ethers.utils.Interface(SizeABI.abi);
-const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
-
 function getSubcalls(
+  sizeFactory: Address,
   operations: (MarketOperation | FactoryOperation)[],
   onBehalfOf: Address,
   recipient?: Address,
@@ -62,7 +53,7 @@ function getSubcalls(
       const { functionName, params } = operation;
       const calldata = ISizeFactory.encodeFunctionData(functionName, [params]);
       return {
-        target: SizeFactory,
+        target: sizeFactory,
         calldata: calldata,
         onBehalfOfCalldata: undefined,
         action: undefined,
@@ -84,9 +75,12 @@ function getActionsBitmap(subcalls: Subcall[]): ActionsBitmap {
   return Authorization.getActionsBitmap(actions);
 }
 
-function getSizeFactorySubcallsDatas(subcalls: Subcall[]): string[] {
+function getSizeFactorySubcallsDatas(
+  sizeFactory: Address,
+  subcalls: Subcall[],
+): string[] {
   return subcalls.map((op) =>
-    op.target === SizeFactory
+    op.target === sizeFactory
       ? op.calldata
       : ISizeFactory.encodeFunctionData("callMarket", [
           op.target,
@@ -96,15 +90,16 @@ function getSizeFactorySubcallsDatas(subcalls: Subcall[]): string[] {
 }
 
 function getAuthorizationSubcallsDatas(
+  sizeFactory: Address,
   subcalls: Subcall[],
 ): [string, string] | [] {
   if (requiresAuthorization(subcalls)) {
     const auth = ISizeFactory.encodeFunctionData("setAuthorization", [
-      SizeFactory,
+      sizeFactory,
       getActionsBitmap(subcalls),
     ]);
     const nullAuth = ISizeFactory.encodeFunctionData("setAuthorization", [
-      SizeFactory,
+      sizeFactory,
       Authorization.nullActionsBitmap(),
     ]);
     return [auth, nullAuth];
@@ -113,12 +108,18 @@ function getAuthorizationSubcallsDatas(
   }
 }
 
+interface TxArgs {
+  target: Address;
+  data: string;
+}
+
 export function buildTx(
+  sizeFactory: Address,
   onBehalfOf: Address,
   operations: (MarketOperation | FactoryOperation)[],
   recipient?: Address,
 ): TxArgs {
-  const subcalls = getSubcalls(operations, onBehalfOf, recipient);
+  const subcalls = getSubcalls(sizeFactory, operations, onBehalfOf, recipient);
 
   if (subcalls.length === 0) {
     throw new Error("[size-sdk] no operations to execute");
@@ -128,14 +129,20 @@ export function buildTx(
       data: subcalls[0].calldata,
     };
   } else {
-    const sizeFactorySubcallsDatas = getSizeFactorySubcallsDatas(subcalls);
-    const [maybeAuth, maybeNullAuth] = getAuthorizationSubcallsDatas(subcalls);
+    const sizeFactorySubcallsDatas = getSizeFactorySubcallsDatas(
+      sizeFactory,
+      subcalls,
+    );
+    const [maybeAuth, maybeNullAuth] = getAuthorizationSubcallsDatas(
+      sizeFactory,
+      subcalls,
+    );
 
     const multicall = ISizeFactory.encodeFunctionData("multicall", [
       [maybeAuth, ...sizeFactorySubcallsDatas, maybeNullAuth].filter(Boolean),
     ]);
     return {
-      target: SizeFactory as Address,
+      target: sizeFactory,
       data: multicall,
     };
   }
