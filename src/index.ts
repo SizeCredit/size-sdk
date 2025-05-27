@@ -14,8 +14,8 @@ import {
   FactoryActions as FactoryActionsV1_7,
   FactoryOperation as FactoryOperationV1_7,
 } from "./v1.7/actions/factory";
-import { buildTx as buildTxV1_8 } from "./v1.8/tx/build";
-import { buildTx as buildTxV1_7 } from "./v1.7/tx/build";
+import { TxBuilder as TxBuilderV1_8 } from "./v1.8/tx/build";
+import { TxBuilder as TxBuilderV1_7 } from "./v1.7/tx/build";
 
 import { FullCopy, NoCopy, NullCopy } from "./constants";
 import deadline from "./helpers/deadline";
@@ -51,6 +51,9 @@ type MarketActionsByVersion<T extends Version> = T extends "v1.8"
 type FactoryActionsByVersion<T extends Version> = T extends "v1.8"
   ? FactoryActionsV1_8
   : FactoryActionsV1_7;
+type TxBuilderByVersion<T extends Version> = T extends "v1.8"
+  ? TxBuilderV1_8
+  : TxBuilderV1_7;
 
 class SDK<T extends Version> {
   public readonly sizeFactory: Address;
@@ -59,6 +62,7 @@ class SDK<T extends Version> {
   public readonly version: T;
   public readonly market: MarketActionsByVersion<T>;
   public readonly factory: FactoryActionsByVersion<T>;
+  private readonly txBuilder: TxBuilderByVersion<T>;
 
   constructor(params: SDKParams & { version: T }) {
     this.sizeFactory = params.sizeFactory;
@@ -74,6 +78,9 @@ class SDK<T extends Version> {
         this.sizeFactory,
         this.collectionManager,
       ) as FactoryActionsByVersion<T>;
+      this.txBuilder = new TxBuilderV1_8(
+        this.sizeFactory,
+      ) as TxBuilderByVersion<T>;
     } else {
       this.market = new MarketActionsV1_7(
         this.markets,
@@ -81,22 +88,11 @@ class SDK<T extends Version> {
       this.factory = new FactoryActionsV1_7(
         this.sizeFactory,
       ) as FactoryActionsByVersion<T>;
+      this.txBuilder = new TxBuilderV1_7(
+        this.sizeFactory,
+      ) as TxBuilderByVersion<T>;
     }
   }
-
-  private _buildTxV1_8 = (
-    onBehalfOf: Address,
-    operations: (MarketOperationV1_8 | FactoryOperationV1_8)[],
-    recipient?: Address,
-  ): TxArgs[] =>
-    buildTxV1_8(this.sizeFactory, onBehalfOf, operations, recipient);
-
-  private _buildTxV1_7 = (
-    onBehalfOf: Address,
-    operations: (MarketOperationV1_7 | FactoryOperationV1_7)[],
-    recipient?: Address,
-  ): TxArgs[] =>
-    buildTxV1_7(this.sizeFactory, onBehalfOf, operations, recipient);
 
   get tx(): T extends "v1.8"
     ? {
@@ -113,11 +109,15 @@ class SDK<T extends Version> {
           recipient?: Address,
         ) => TxArgs[];
       } {
-    return (
-      this.version === "v1.8"
-        ? { build: this._buildTxV1_8 }
-        : { build: this._buildTxV1_7 }
-    ) as any;
+    return {
+      build: (
+        onBehalfOf: Address,
+        operations: T extends "v1.8"
+          ? (MarketOperationV1_8 | FactoryOperationV1_8)[]
+          : (MarketOperationV1_7 | FactoryOperationV1_7)[],
+        recipient?: Address,
+      ) => this.txBuilder.build(onBehalfOf, operations as any, recipient),
+    } as any;
   }
 
   get helpers() {

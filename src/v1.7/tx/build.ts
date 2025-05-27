@@ -15,27 +15,36 @@ function isMarketOperation(
   return "market" in operation;
 }
 
-export function buildTx(
-  sizeFactory: Address,
-  onBehalfOf: Address,
-  operations: (MarketOperation | FactoryOperation)[],
-  recipient?: Address,
-): TxArgs[] {
-  return operations.map((operation) => {
-    if (isMarketOperation(operation)) {
-      const { market, functionName, params } = operation;
-      const calldata = ISize.encodeFunctionData(functionName, [params]);
-      return {
-        target: market,
-        data: calldata,
-      };
-    } else {
-      const { functionName, params } = operation;
-      const calldata = ISizeFactory.encodeFunctionData(functionName, [params]);
-      return {
-        target: sizeFactory,
-        data: calldata,
-      };
-    }
-  });
+export class TxBuilder {
+  private readonly sizeFactory: Address;
+
+  constructor(sizeFactory: Address) {
+    this.sizeFactory = sizeFactory;
+  }
+
+  build(
+    onBehalfOf: Address,
+    operations: (MarketOperation | FactoryOperation)[],
+    recipient?: Address,
+  ): TxArgs[] {
+    return operations.map((operation) => {
+      if (isMarketOperation(operation)) {
+        const { market, functionName, params } = operation;
+        const calldata = ISize.encodeFunctionData(functionName, [params]);
+        return {
+          target: market,
+          data: calldata,
+        };
+      } else {
+        const { functionName, params } = operation;
+        const calldata = ISizeFactory.encodeFunctionData(functionName, [
+          params,
+        ]);
+        return {
+          target: this.sizeFactory,
+          data: calldata,
+        };
+      }
+    });
+  }
 }
