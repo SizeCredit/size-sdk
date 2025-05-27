@@ -3,15 +3,10 @@ import { describe, expect, test, beforeAll } from "@jest/globals";
 import SDK from "../src";
 import { BigNumber, ethers } from "ethers";
 import selector from "./selector";
-import Authorization, { Action } from "../src/Authorization";
-import SizeABI from "../src/v1.8/abi/Size.json";
-import sizeFactoryABI from "../src/v1.8/abi/SizeFactory.json";
 
 describe("size-sdk v1.7", () => {
   let window: any;
   let sdk: SDK<"v1.7">;
-
-  const sizeFactory = "0x000000000000000000000000000000000000ffff";
 
   const alice = "0x0000000000000000000000000000000000010000";
   const bob = "0x0000000000000000000000000000000000020000";
@@ -24,9 +19,6 @@ describe("size-sdk v1.7", () => {
   const collateral2 = "0x0000000000000000000000000000000000007777";
   const usdc = "0x0000000000000000000000000000000000008888";
 
-  const ISize = new ethers.utils.Interface(SizeABI.abi);
-  const ISizeFactory = new ethers.utils.Interface(sizeFactoryABI.abi);
-
   beforeAll(() => {
     const html = "<!DOCTYPE html><html><body></body></html>";
     const dom = new JSDOM(html, { runScripts: "outside-only" });
@@ -34,7 +26,6 @@ describe("size-sdk v1.7", () => {
     window.ethereum = {};
 
     sdk = new SDK({
-      sizeFactory,
       markets: [market1, market2],
       version: "v1.7",
     });
@@ -197,13 +188,21 @@ describe("size-sdk v1.7", () => {
 
     expect(txs.length).toBe(5);
     txs.forEach((tx) => {
-      expect(tx.data).not.toContain(selector(ISizeFactory, "setAuthorization"));
-      expect(tx.data).not.toContain(selector(ISizeFactory, "callMarket"));
-      expect(tx.data).not.toContain(selector(ISize, "depositOnBehalfOf"));
       expect(tx.data).not.toContain(
-        selector(ISize, "sellCreditMarketOnBehalfOf"),
+        selector("setAuthorization(address,uint256)"),
       );
-      expect(tx.data).not.toContain(selector(ISize, "withdrawOnBehalfOf"));
+      expect(tx.data).not.toContain(selector("callMarket(address,bytes)"));
+      expect(tx.data).not.toContain(
+        selector("depositOnBehalfOf(((address,uint256,address),address))"),
+      );
+      expect(tx.data).not.toContain(
+        selector(
+          "sellCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool,uint256,address))",
+        ),
+      );
+      expect(tx.data).not.toContain(
+        selector("withdrawOnBehalfOf(((address,uint256,address),address))"),
+      );
     });
   });
 });

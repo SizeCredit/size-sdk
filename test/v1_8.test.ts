@@ -5,7 +5,7 @@ import { BigNumber, ethers } from "ethers";
 import selector from "./selector";
 import Authorization, { Action } from "../src/Authorization";
 import SizeABI from "../src/v1.8/abi/Size.json";
-import sizeFactoryABI from "../src/v1.8/abi/SizeFactory.json";
+import SizeFactoryABI from "../src/v1.8/abi/SizeFactory.json";
 
 describe("size-sdk v1.8", () => {
   let window: any;
@@ -26,7 +26,7 @@ describe("size-sdk v1.8", () => {
   const usdc = "0x0000000000000000000000000000000000008888";
 
   const ISize = new ethers.utils.Interface(SizeABI.abi);
-  const ISizeFactory = new ethers.utils.Interface(sizeFactoryABI.abi);
+  const ISizeFactory = new ethers.utils.Interface(SizeFactoryABI.abi);
 
   beforeAll(() => {
     const html = "<!DOCTYPE html><html><body></body></html>";
