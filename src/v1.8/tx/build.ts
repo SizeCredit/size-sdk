@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import SizeABI from "../../abi/Size.json";
-import SizeFactoryABI from "../../abi/SizeFactory.json";
+import SizeABI from "../abi/Size.json";
+import SizeFactoryABI from "../abi/SizeFactory.json";
 import { MarketOperation } from "../actions/market";
 import { FactoryOperation } from "../actions/factory";
 import Authorization, { ActionsBitmap, type Action } from "../../Authorization";

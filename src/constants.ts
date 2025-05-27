@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { CopyLimitOrderConfigStructOutput } from "./v1.8/types-v1_8/ethers-contracts/Size";
+import { CopyLimitOrderConfigStructOutput } from "./v1.8/types/ethers-contracts/Size";
 
 export const FullCopy: CopyLimitOrderConfigStructOutput = {
   minTenor: BigNumber.from(0),

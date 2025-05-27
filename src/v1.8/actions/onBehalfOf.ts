@@ -19,7 +19,7 @@ import {
   SelfLiquidateParamsStruct,
   SetUserConfigurationParamsStruct,
   CopyLimitOrdersParamsStruct,
-} from "../types-v1_8/ethers-contracts/Size";
+} from "../types/ethers-contracts/Size";
 import {
   MarketFunctionName,
   MarketOperation,

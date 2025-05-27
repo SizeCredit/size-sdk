@@ -1,15 +1,15 @@
 import { JSDOM } from "jsdom";
 import { describe, expect, test, beforeAll } from "@jest/globals";
-import SizeSDK from "../src/index";
+import SDK from "../src";
 import { BigNumber, ethers } from "ethers";
 import selector from "./selector";
 import Authorization, { Action } from "../src/Authorization";
-import SizeABI from "../src/abi/Size.json";
-import sizeFactoryABI from "../src/abi/SizeFactory.json";
+import SizeABI from "../src/v1.8/abi/Size.json";
+import sizeFactoryABI from "../src/v1.8/abi/SizeFactory.json";
 
 describe("size-sdk browser build", () => {
   let window: any;
-  let sdk: SizeSDK;
+  let sdk: SDK;
 
   const sizeFactory = "0x000000000000000000000000000000000000ffff";
   const collectionManager = "0x000000000000000000000000000000000000aaaa";
@@ -34,7 +34,7 @@ describe("size-sdk browser build", () => {
     window = dom.window;
     window.ethereum = {};
 
-    sdk = new SizeSDK({
+    sdk = new SDK({
       sizeFactory,
       collectionManager,
       markets: [market1, market2],
