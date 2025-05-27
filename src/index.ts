@@ -32,13 +32,11 @@ interface SDKParamsCommon {
 interface SDKParamsV1_8 extends SDKParamsCommon {
   version: "v1.8";
   sizeFactory: Address;
-  collectionManager: Address;
 }
 
 interface SDKParamsV1_7 extends SDKParamsCommon {
   version: "v1.7";
   sizeFactory?: never;
-  collectionManager?: never;
 }
 
 type SDKParams = SDKParamsV1_7 | SDKParamsV1_8;
@@ -55,7 +53,6 @@ type TxBuilderByVersion<T extends Version> = T extends "v1.8"
 
 class SDK<T extends Version> {
   public readonly sizeFactory: Address | undefined;
-  public readonly collectionManager: Address | undefined;
 
   public readonly markets: Address[];
   public readonly version: T;
@@ -73,12 +70,8 @@ class SDK<T extends Version> {
 
     if (params.version === "v1.8") {
       this.sizeFactory = (params as SDKParamsV1_8).sizeFactory;
-      this.collectionManager = (params as SDKParamsV1_8).collectionManager;
 
-      this.factory = new FactoryActionsV1_8(
-        this.sizeFactory,
-        this.collectionManager,
-      ) as FactoryActionsByVersion<T>;
+      this.factory = new FactoryActionsV1_8() as FactoryActionsByVersion<T>;
       this.market = new MarketActionsV1_8(
         this.markets,
       ) as MarketActionsByVersion<T>;

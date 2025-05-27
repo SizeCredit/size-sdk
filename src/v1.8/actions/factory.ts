@@ -1,5 +1,4 @@
 import { BigNumberish } from "ethers";
-import { Address } from "../../types";
 
 type FactoryFunctionName =
   | "subscribeToCollections"
@@ -11,10 +10,7 @@ export type FactoryOperation = {
 };
 
 export class FactoryActions {
-  constructor(
-    private readonly sizeFactory: Address,
-    private readonly collectionManager: Address,
-  ) {}
+  constructor() {}
 
   subscribeToCollections(params: BigNumberish[]): FactoryOperation {
     return {

@@ -13,7 +13,6 @@ describe("size-sdk v1.8", () => {
   let sdk: SDK<"v1.8">;
 
   const sizeFactory = "0x000000000000000000000000000000000000ffff";
-  const collectionManager = "0x000000000000000000000000000000000000aaaa";
 
   const alice = "0x0000000000000000000000000000000000010000";
   const bob = "0x0000000000000000000000000000000000020000";
@@ -38,7 +37,6 @@ describe("size-sdk v1.8", () => {
 
     sdk = new SDK({
       sizeFactory,
-      collectionManager,
       markets: [market1, market2],
       version: "v1.8",
     });

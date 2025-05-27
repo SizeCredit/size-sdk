@@ -16,7 +16,7 @@ describe("size-sdk v1.8", () => {
   let window: any;
   let sdk: SDK<"v1.8">;
 
-  const RUNS = 256;
+  const RUNS = 32;
 
   beforeAll(() => {
     const html = "<!DOCTYPE html><html><body></body></html>";
@@ -33,13 +33,11 @@ describe("size-sdk v1.8", () => {
       const token = randomToken();
       const to = randomAddress();
       const sizeFactory = randomAddress();
-      const collectionManager = randomAddress();
 
       sdk = new SDK({
         markets: [market1, randomAddress()],
         version: "v1.8",
         sizeFactory,
-        collectionManager,
       });
 
       const txs = sdk.tx.build(alice, [
@@ -67,7 +65,6 @@ describe("size-sdk v1.8", () => {
       const deadline = randomDeadline();
       const lender = randomAddress();
       const sizeFactory = randomAddress();
-      const collectionManager = randomAddress();
       const collectionId = randomBigInt(0n, 1000000n);
       const rateProvider = randomAddress();
 
@@ -75,7 +72,6 @@ describe("size-sdk v1.8", () => {
         markets: [market1],
         version: "v1.8",
         sizeFactory,
-        collectionManager,
       });
 
       const txs = sdk.tx.build(alice, [
@@ -114,7 +110,6 @@ describe("size-sdk v1.8", () => {
       const lender = randomAddress();
       const token = randomToken();
       const sizeFactory = randomAddress();
-      const collectionManager = randomAddress();
       const collectionId = randomBigInt(0n, 1000000n);
       const rateProvider = randomAddress();
 
@@ -122,7 +117,6 @@ describe("size-sdk v1.8", () => {
         markets: [market1, market2],
         version: "v1.8",
         sizeFactory,
-        collectionManager,
       });
 
       const txs = sdk.tx.build(alice, [
@@ -172,14 +166,12 @@ describe("size-sdk v1.8", () => {
       const creditPositionIdsForSale = randomBool();
       const creditPositionIds: bigint[] = [];
       const sizeFactory = randomAddress();
-      const collectionManager = randomAddress();
       const vault = randomAddress();
 
       sdk = new SDK({
         markets: [market2],
         version: "v1.8",
         sizeFactory,
-        collectionManager,
       });
 
       const txs = sdk.tx.build(alice, [

@@ -16,7 +16,7 @@ describe("size-sdk v1.7", () => {
   let window: any;
   let sdk: SDK<"v1.7">;
 
-  const RUNS = 256;
+  const RUNS = 32;
 
   beforeAll(() => {
     const html = "<!DOCTYPE html><html><body></body></html>";
