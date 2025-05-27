@@ -7,18 +7,20 @@ import { MarketOperation } from "./v1.8/actions/market";
 import { FactoryOperation } from "./v1.8/actions/factory";
 import { Address } from "./types";
 
+type Version = "v1.7" | "v1.8";
+
 interface SDKParams {
   sizeFactory: Address;
   collectionManager: Address;
   markets: Address[];
-  version: "v1.7" | "v1.8";
+  version: Version;
 }
 
 class SDK {
   public readonly sizeFactory: Address;
   public readonly collectionManager: Address;
   public readonly markets: Address[];
-  public readonly version: "v1.7" | "v1.8";
+  public readonly version: Version;
   public readonly market: MarketActions;
   public readonly factory: FactoryActions;
 
