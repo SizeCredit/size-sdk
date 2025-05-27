@@ -8,10 +8,11 @@ import ERC20 from "../erc20/abi/ERC20.json";
 import { Result } from "@ethersproject/abi";
 
 export class CalldataDecoder {
-  private readonly iface: ethers.utils.Interface;
+  private readonly abi: ethers.utils.Interface;
 
   constructor() {
-    const set = new Set();
+    const set = new Set<string>();
+
     const abi = [
       ...CollectionsManagerV1_8.abi,
       ...SizeFactoryV1_8.abi,
@@ -24,18 +25,18 @@ export class CalldataDecoder {
     const deduped = abi
       .filter((item) => item.type === "function")
       .filter((item) => {
-        const sig = `${item.name}(${item.inputs.map((input) => input.type).join(",")})`;
+        const sig = `${item.name}(${item.inputs.map((e: any) => this.formatType(e)).join(",")})`;
         if (set.has(sig)) return false;
         set.add(sig);
         return true;
       });
 
-    this.iface = new ethers.utils.Interface(deduped);
+    this.abi = new ethers.utils.Interface(deduped);
   }
 
   decode(data: string): string {
     try {
-      const tx = this.iface.parseTransaction({ data });
+      const tx = this.abi.parseTransaction({ data });
       return this.recursiveFormat(
         tx.name,
         tx.args,
@@ -45,6 +46,22 @@ export class CalldataDecoder {
     } catch {
       return "Unknown function call or invalid calldata";
     }
+  }
+
+  private formatType(input: any): string {
+    if (input.type === "tuple") {
+      const components = input.components
+        .map((e: any) => this.formatType(e))
+        .join(",");
+      return `(${components})${input.type.endsWith("[]") ? "[]" : ""}`;
+    } else if (input.type.endsWith("]") && input.type.startsWith("tuple")) {
+      const components = input.components
+        .map((e: any) => this.formatType(e))
+        .join(",");
+      const arrayPart = input.type.slice("tuple".length);
+      return `(${components})${arrayPart}`;
+    }
+    return input.type;
   }
 
   private recursiveFormat(
@@ -138,7 +155,7 @@ export class CalldataDecoder {
 
   private tryDecodeNested(data: string, level: number): string {
     try {
-      const nested = this.iface.parseTransaction({ data });
+      const nested = this.abi.parseTransaction({ data });
       return this.recursiveFormat(
         nested.name,
         nested.args,
