@@ -266,6 +266,9 @@ describe("size-sdk v1.8", () => {
 
     expect(txs[0].target).toBe(usdc);
     expect(txs[0].data).toContain(sdk.helpers.selector(IERC20, "approve"));
+    expect(txs[0].data).toEqual(
+      "0x095ea7b300000000000000000000000000000000000000000000000000000000000001230000000000000000000000000000000000000000000000000000000000000064",
+    );
 
     expect(txs[1].target).toBe(sizeFactory);
     expect(txs[1].data).toContain(

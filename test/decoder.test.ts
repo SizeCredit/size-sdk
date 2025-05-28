@@ -9,10 +9,10 @@ describe("size-sdk decoder", () => {
     });
 
     const error = sdk.decode.error(
-      "0xe450d38c000000000000000000000000817c48bb59e866d5baefc9a90d04a0ce4e7d543b0000000000000000000000000000000000000000000000000000000000005b290000000000000000000000000000000000000000000000000000000002d8cb0c",
+      "0xe450d38c000000000000000000000000d8dA6BF26964aF9D7eEd9e03E53415D37aA960450000000000000000000000000000000000000000000000000000000000005b290000000000000000000000000000000000000000000000000000000002d8cb0c",
     );
     expect(error).toBe(
-      "ERC20InsufficientBalance(0x817C48bB59e866d5baefC9A90d04a0CE4e7D543b,23337,47762188)",
+      "ERC20InsufficientBalance(0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045,23337,47762188)",
     );
   });
 
@@ -23,14 +23,14 @@ describe("size-sdk decoder", () => {
     });
 
     const error = sdk.decode.error(
-      "0x4e25c6da000000000000000000000000ff8f913373f23f937866ee5f25be74a211e308140000000000000000000000000000000000000000000000001bae8b92f96c355b0000000000000000000000000000000000000000000000001bc16d674ec80000",
+      "0x4e25c6da000000000000000000000000d8dA6BF26964aF9D7eEd9e03E53415D37aA960450000000000000000000000000000000000000000000000001bae8b92f96c355b0000000000000000000000000000000000000000000000001bc16d674ec80000",
     );
     expect(error).toBe(
-      "CR_BELOW_OPENING_LIMIT_BORROW_CR(0xFF8F913373f23f937866EE5f25Be74A211E30814,1994685148337812827,2000000000000000000)",
+      "CR_BELOW_OPENING_LIMIT_BORROW_CR(0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045,1994685148337812827,2000000000000000000)",
     );
   });
 
-  test("should decode calldata", async () => {
+  test("should decode calldata of ideal flow", async () => {
     const sdk = new SDK({
       markets: [],
       version: "v1.8",
@@ -131,6 +131,56 @@ describe("size-sdk decoder", () => {
       0
     )
   ]
+)`,
+    );
+  });
+
+  test("should decode calldata of deposit", async () => {
+    const sdk = new SDK({
+      markets: [],
+      version: "v1.8",
+      sizeFactory: "0x0000000000000000000000000000000000000000",
+    });
+
+    const data = sdk.decode.calldata(
+      "0x0cf8542f000000000000000000000000420000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000001337",
+    );
+    expect(data).toBe(
+      `deposit(
+  {
+    token: 0x4200000000000000000000000000000000000006,
+    amount: 100,
+    to: 0x0000000000000000000000000000000000001337
+  }
+)`,
+    );
+  });
+
+  test("should decode calldata of undefined", async () => {
+    const sdk = new SDK({
+      markets: [],
+      version: "v1.8",
+      sizeFactory: "0x0000000000000000000000000000000000000000",
+    });
+
+    const data = sdk.decode.calldata("0x");
+    expect(data).toBe(`Unknown function call or invalid calldata`);
+  });
+
+  test("should decode calldata of approve", async () => {
+    const sdk = new SDK({
+      markets: [],
+      version: "v1.8",
+      sizeFactory: "0x0000000000000000000000000000000000000000",
+    });
+
+    const data = sdk.decode.calldata(
+      "0x095ea7b300000000000000000000000000000000000000000000000000000000000001230000000000000000000000000000000000000000000000000000000000000064",
+    );
+    expect(data).toBe(
+      `approve(
+  0x0000000000000000000000000000000000000123,
+  100
 )`,
     );
   });
