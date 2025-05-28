@@ -1,6 +1,6 @@
 {
   "name": "@sizecredit/sdk",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Size TypeScript SDK for interacting with the Size protocol",
   "type": "module",
   "main": "./dist/cjs/index.js",
@@ -31,7 +31,7 @@
   },
   "scripts": {
     "build": "npm run clean && npm run build:types && npm run build:bundles",
-    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types && cp src/types.d.ts dist/types/types.d.ts",
     "build:bundles": "npx rollup -c rollup.config.mjs",
     "clean": "rm -r dist || true",
     "prepare": "npm run build",
