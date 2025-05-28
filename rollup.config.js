@@ -16,7 +16,8 @@ export default [
         file: packageJson.main,
         format: "cjs",
         sourcemap: true,
-        exports: "named"
+        exports: "named",
+        esModule: false
       },
       {
         file: packageJson.module,
@@ -27,13 +28,18 @@ export default [
     ],
     plugins: [
       resolve({
-        preferBuiltins: true
+        preferBuiltins: true,
+        mainFields: ['module', 'main']
       }),
-      commonjs(),
+      commonjs({
+        include: /node_modules/,
+        transformMixedEsModules: true
+      }),
       json(),
       typescript({ 
         tsconfig: "./tsconfig.json",
-        sourceMap: true
+        sourceMap: true,
+        module: "ESNext"
       }),
     ],
     external: [
