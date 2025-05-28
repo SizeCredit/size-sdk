@@ -183,11 +183,18 @@ describe("size-sdk decoder fuzz tests", () => {
       const alice = randomAddress();
       const market1 = randomAddress();
       const market2 = randomAddress();
+      const sizeFactory = randomAddress();
 
       const sdk = new SDK({
         markets: [market1, market2],
         version: "v1.8",
-        sizeFactory: randomAddress(),
+        sizeFactory,
+        labels: {
+          [sizeFactory]: "SizeFactory",
+          [market1]: "Market1",
+          [market2]: "Market2",
+          [alice]: "Alice",
+        },
       });
 
       // Generate random number of operations
@@ -213,6 +220,7 @@ describe("size-sdk decoder fuzz tests", () => {
           expect(decoded).toContain("multicall");
           expect(decoded).toContain("setAuthorization");
           expect(decoded).toContain("callMarket");
+          expect(decoded).toContain("SizeFactory");
         } else {
           expect(decoded).toContain(functionName);
         }
