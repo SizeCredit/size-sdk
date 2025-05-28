@@ -7,6 +7,14 @@ export function randomBigInt(min: bigint, max: bigint): bigint {
   return min + (randomBigInt % range);
 }
 
+export function getRandomBigIntArray(
+  length: number,
+  min: bigint,
+  max: bigint,
+): bigint[] {
+  return Array.from({ length }, () => randomBigInt(min, max));
+}
+
 export function randomAddress(): `0x${string}` {
   return ethers.utils.getAddress(
     ethers.utils.hexlify(ethers.utils.randomBytes(20)),
