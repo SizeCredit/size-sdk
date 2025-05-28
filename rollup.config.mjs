@@ -23,7 +23,9 @@ export default [
         file: packageJson.module,
         format: "esm",
         sourcemap: true,
-        exports: "named"
+        exports: "named",
+        preserveModules: true,
+        preserveModulesRoot: "src"
       },
     ],
     plugins: [
@@ -41,7 +43,7 @@ export default [
       typescript({ 
         tsconfig: "./tsconfig.json",
         sourceMap: true,
-        module: "commonjs"
+        module: "ESNext"
       }),
     ],
     external: [
