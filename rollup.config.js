@@ -16,18 +16,25 @@ export default [
         file: packageJson.main,
         format: "cjs",
         sourcemap: true,
+        exports: "named"
       },
       {
         file: packageJson.module,
         format: "esm",
         sourcemap: true,
+        exports: "named"
       },
     ],
     plugins: [
-      resolve(),
+      resolve({
+        preferBuiltins: true
+      }),
       commonjs(),
       json(),
-      typescript({ tsconfig: "./tsconfig.json" }),
+      typescript({ 
+        tsconfig: "./tsconfig.json",
+        sourceMap: true
+      }),
     ],
     external: [
       ...Object.keys(packageJson.dependencies || {}),
@@ -36,7 +43,7 @@ export default [
   },
   {
     input: "src/index.ts",
-    output: [{ file: "dist/index.d.ts", format: "esm" }],
+    output: [{ file: "dist/types/index.d.ts", format: "esm" }],
     plugins: [dts()],
   },
 ];
