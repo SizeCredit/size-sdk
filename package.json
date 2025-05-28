@@ -23,7 +23,7 @@
     "build": "npm run clean && npm run build:types && npm run build:bundles",
     "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
     "build:bundles": "npx rollup -c rollup.config.mjs",
-    "clean": "rm -r dist",
+    "clean": "rm -r dist || true",
     "prepare": "npm run build",
     "format": "prettier --write .",
     "test": "tsc && jest --config jest.config.cjs"
