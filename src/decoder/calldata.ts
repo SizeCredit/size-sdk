@@ -65,12 +65,16 @@ export class CalldataDecoder {
     return input.type;
   }
 
-  private toString(value: string | number): string {
+  private toString(value: any): string {
     const str = value.toString();
     if (str === ethers.constants.MaxUint256.toString()) {
       return "type(uint256).max";
     } else if (str === ethers.constants.AddressZero.toString()) {
       return "address(0)";
+    } else if (str === ethers.constants.MinInt256.toString()) {
+      return "type(int256).min";
+    } else if (Array.isArray(value)) {
+      return `[${value.map((item: any) => this.toString(item)).join(",")}]`;
     } else {
       return str;
     }
