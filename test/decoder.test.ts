@@ -34,7 +34,7 @@ describe("size-sdk decoder", () => {
     const sdk = new SDK({
       markets: [],
       version: "v1.8",
-      sizeFactory: "0x0000000000000000000000000000000000000000",
+      sizeFactory: "0x0000000000000000000000000000000000000001",
     });
 
     const data = sdk.decode.calldata(
@@ -45,7 +45,7 @@ describe("size-sdk decoder", () => {
   [
     setAuthorization(
       0x000000000000000000000000000000000000FFff,
-      35
+      [DEPOSIT,WITHDRAW,SELL_CREDIT_MARKET]
     ),
     callMarket(
       0x0000000000000000000000000000000000000123,
@@ -66,14 +66,14 @@ describe("size-sdk decoder", () => {
         {
           params: {
             lender: 0x0000000000000000000000000000000000020000,
-            creditPositionId: 115792089237316195423570985008687907853269984665640564039457584007913129639935,
+            creditPositionId: type(uint256).max,
             amount: 100,
             tenor: 31536000,
             deadline: 1893456000,
-            maxAPR: 115792089237316195423570985008687907853269984665640564039457584007913129639935,
+            maxAPR: type(uint256).max,
             exactAmountIn: false,
             collectionId: 0,
-            rateProvider: 0x0000000000000000000000000000000000000000
+            rateProvider: address(0)
           },
           onBehalfOf: 0x0000000000000000000000000000000000010000,
           recipient: 0x0000000000000000000000000000000000010000
@@ -99,14 +99,14 @@ describe("size-sdk decoder", () => {
         {
           params: {
             lender: 0x0000000000000000000000000000000000030000,
-            creditPositionId: 115792089237316195423570985008687907853269984665640564039457584007913129639935,
+            creditPositionId: type(uint256).max,
             amount: 100,
             tenor: 31536000,
             deadline: 1893456000,
-            maxAPR: 115792089237316195423570985008687907853269984665640564039457584007913129639935,
+            maxAPR: type(uint256).max,
             exactAmountIn: false,
             collectionId: 0,
-            rateProvider: 0x0000000000000000000000000000000000000000
+            rateProvider: address(0)
           },
           onBehalfOf: 0x0000000000000000000000000000000000010000,
           recipient: 0x0000000000000000000000000000000000010000
@@ -119,7 +119,7 @@ describe("size-sdk decoder", () => {
         {
           params: {
             token: 0x0000000000000000000000000000000000008888,
-            amount: 115792089237316195423570985008687907853269984665640564039457584007913129639935,
+            amount: type(uint256).max,
             to: 0x0000000000000000000000000000000000010000
           },
           onBehalfOf: 0x0000000000000000000000000000000000010000
@@ -128,7 +128,7 @@ describe("size-sdk decoder", () => {
     ),
     setAuthorization(
       0x000000000000000000000000000000000000FFff,
-      0
+      []
     )
   ]
 )`,
@@ -139,7 +139,7 @@ describe("size-sdk decoder", () => {
     const sdk = new SDK({
       markets: [],
       version: "v1.8",
-      sizeFactory: "0x0000000000000000000000000000000000000000",
+      sizeFactory: "0x0000000000000000000000000000000000000001",
     });
 
     const data = sdk.decode.calldata(
@@ -159,8 +159,7 @@ describe("size-sdk decoder", () => {
   test("should decode calldata of undefined", async () => {
     const sdk = new SDK({
       markets: [],
-      version: "v1.8",
-      sizeFactory: "0x0000000000000000000000000000000000000000",
+      version: "v1.7",
     });
 
     const data = sdk.decode.calldata("0x");
@@ -170,8 +169,7 @@ describe("size-sdk decoder", () => {
   test("should decode calldata of approve", async () => {
     const sdk = new SDK({
       markets: [],
-      version: "v1.8",
-      sizeFactory: "0x0000000000000000000000000000000000000000",
+      version: "v1.7",
     });
 
     const data = sdk.decode.calldata(

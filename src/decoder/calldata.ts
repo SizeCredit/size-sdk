@@ -6,6 +6,7 @@ import SizeV1_8 from "../v1.8/abi/Size.json";
 import CollectionsManagerV1_8 from "../v1.8/abi/CollectionsManager.json";
 import ERC20 from "../erc20/abi/ERC20.json";
 import { Result } from "@ethersproject/abi";
+import { Action, isActionSet } from "../Authorization";
 
 export class CalldataDecoder {
   private readonly abi: ethers.utils.Interface;
@@ -64,6 +65,27 @@ export class CalldataDecoder {
     return input.type;
   }
 
+  private toString(value: string | number): string {
+    const str = value.toString();
+    if (str === ethers.constants.MaxUint256.toString()) {
+      return "type(uint256).max";
+    } else if (str === ethers.constants.AddressZero.toString()) {
+      return "address(0)";
+    } else {
+      return str;
+    }
+  }
+
+  private decodeAuthorizationBitmap(bitmap: bigint): string {
+    const actions: Action[] = [];
+    for (let i = 0; i < Action.NUMBER_OF_ACTIONS; i++) {
+      if (isActionSet(bitmap, i)) {
+        actions.push(i);
+      }
+    }
+    return `[${actions.map((a) => Action[a]).join(",")}]`;
+  }
+
   private recursiveFormat(
     name: string,
     args: Result,
@@ -74,6 +96,11 @@ export class CalldataDecoder {
 
     const formattedArgs = args.map((arg, i) => {
       const input = inputs[i];
+
+      // Special handling for setAuthorization function
+      if (name === "setAuthorization" && input.type === "uint256") {
+        return this.decodeAuthorizationBitmap(BigInt(arg.toString()));
+      }
 
       if (
         input.type === "bytes" &&
@@ -102,10 +129,12 @@ export class CalldataDecoder {
       }
 
       if (Array.isArray(arg)) {
-        return "[" + arg.map((item: any) => item.toString()).join(", ") + "]";
+        return (
+          "[" + arg.map((item: any) => this.toString(item)).join(", ") + "]"
+        );
       }
 
-      return arg.toString();
+      return this.toString(arg);
     });
 
     return `${name}(\n${indent(level + 1)}${formattedArgs.join(",\n" + indent(level + 1))}\n${indent(level)})`;
@@ -133,14 +162,14 @@ export class CalldataDecoder {
           // Use the array component's components for the tuple
           const arrayComponent = component.arrayChildren;
           if (!arrayComponent) {
-            return item.toString();
+            return this.toString(item);
           }
           return this.formatTuple(item, arrayComponent, level + 2);
         });
         return `${component.name}: [\n${indent(level + 2)}${formattedTuples.join(",\n" + indent(level + 2))}\n${indent(level + 1)}]`;
       }
 
-      return `${component.name}: ${value.toString()}`;
+      return `${component.name}: ${this.toString(value)}`;
     });
 
     return (
