@@ -7,6 +7,7 @@ import selector from "../helpers/selector";
 
 export class ErrorDecoder {
   private readonly abi: ethers.utils.Interface;
+
   constructor() {
     const set = new Set();
     const abi = [

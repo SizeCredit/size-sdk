@@ -10,8 +10,9 @@ import { Action, isActionSet } from "../Authorization";
 
 export class CalldataDecoder {
   private readonly abi: ethers.utils.Interface;
+  private readonly labels: Record<string, string>;
 
-  constructor() {
+  constructor(labels: Record<string, string> = {}) {
     const set = new Set<string>();
 
     const abi = [
@@ -33,6 +34,9 @@ export class CalldataDecoder {
       });
 
     this.abi = new ethers.utils.Interface(deduped);
+    this.labels = Object.fromEntries(
+      Object.entries(labels).map(([key, value]) => [key.toLowerCase(), value]),
+    );
   }
 
   decode(data: string): string {
@@ -67,16 +71,10 @@ export class CalldataDecoder {
 
   private toString(value: any): string {
     const str = value.toString();
-    if (str === ethers.constants.MaxUint256.toString()) {
-      return "type(uint256).max";
-    } else if (str === ethers.constants.AddressZero.toString()) {
-      return "address(0)";
-    } else if (str === ethers.constants.MinInt256.toString()) {
-      return "type(int256).min";
-    } else if (Array.isArray(value)) {
+    if (Array.isArray(value)) {
       return `[${value.map((item: any) => this.toString(item)).join(",")}]`;
     } else {
-      return str;
+      return this.labels[str.toLowerCase()] || str;
     }
   }
 

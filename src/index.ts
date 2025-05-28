@@ -20,6 +20,7 @@ import { ERC20Actions, ERC20Operation } from "./erc20/actions";
 import { ErrorDecoder } from "./decoder/error";
 import { CalldataDecoder } from "./decoder/calldata";
 import selector from "./helpers/selector";
+import { ethers } from "ethers";
 
 export interface TxArgs {
   target: Address;
@@ -30,6 +31,7 @@ type Version = "v1.7" | "v1.8";
 
 interface SDKParamsCommon {
   markets: Address[];
+  labels?: Record<string, string>;
 }
 
 interface SDKParamsV1_8 extends SDKParamsCommon {
@@ -73,7 +75,12 @@ class SDK<T extends Version> {
     this.version = params.version;
     this.erc20 = new ERC20Actions();
     this.errorDecoder = new ErrorDecoder();
-    this.calldataDecoder = new CalldataDecoder();
+    this.calldataDecoder = new CalldataDecoder({
+      [ethers.constants.MaxUint256.toString()]: "type(uint256).max",
+      [ethers.constants.MinInt256.toString()]: "type(int256).min",
+      [ethers.constants.AddressZero.toString()]: "address(0)",
+      ...(params.labels || {}),
+    });
 
     if (params.version === "v1.8") {
       this.sizeFactory = (params as SDKParamsV1_8).sizeFactory;

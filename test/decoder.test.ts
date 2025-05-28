@@ -263,4 +263,24 @@ describe("size-sdk decoder", () => {
 )`,
     );
   });
+
+  test("should decode calldata with labels", async () => {
+    const sdk = new SDK({
+      markets: [],
+      version: "v1.7",
+      labels: {
+        "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045": "vitalik.eth",
+      },
+    });
+
+    const data = sdk.decode.calldata(
+      "0x095ea7b3000000000000000000000000d8dA6BF26964aF9D7eEd9e03E53415D37aA960450000000000000000000000000000000000000000000000000000000000000064",
+    );
+    expect(data).toBe(
+      `approve(
+  vitalik.eth,
+  100
+)`,
+    );
+  });
 });
