@@ -21,7 +21,7 @@
   "scripts": {
     "build": "npm run clean && npm run build:types && npm run build:bundles",
     "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
-    "build:bundles": "npx rollup -c",
+    "build:bundles": "npx rollup -c rollup.config.mjs",
     "clean": "rm -r dist",
     "prepare": "npm run build",
     "format": "prettier --write .",
