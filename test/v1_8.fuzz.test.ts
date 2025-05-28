@@ -11,7 +11,7 @@ import {
   randomBool,
 } from "./random";
 
-describe("size-sdk v1.8", () => {
+describe("@sizecredit/sdk v1.8", () => {
   let window: any;
   let sdk: SDK<"v1.8">;
 

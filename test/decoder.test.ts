@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import SDK from "../src";
 
-describe("size-sdk decoder", () => {
+describe("@sizecredit/sdk decoder", () => {
   test("should decode ERC20InsufficientBalance", async () => {
     const sdk = new SDK({
       markets: [],

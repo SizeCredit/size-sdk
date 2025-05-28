@@ -174,7 +174,7 @@ function generateRandomOperations(
   return operations;
 }
 
-describe("size-sdk decoder fuzz tests", () => {
+describe("@sizecredit/sdk decoder fuzz tests", () => {
   const RUNS = 32;
   const MAX_OPERATIONS = 5;
 

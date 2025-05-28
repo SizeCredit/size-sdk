@@ -4,7 +4,7 @@ import SDK from "../src";
 import { BigNumber, ethers } from "ethers";
 import selector from "../src/helpers/selector";
 
-describe("size-sdk v1.7", () => {
+describe("@sizecredit/sdk v1.7", () => {
   let window: any;
   let sdk: SDK<"v1.7">;
 

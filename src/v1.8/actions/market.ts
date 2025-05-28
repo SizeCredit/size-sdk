@@ -169,7 +169,7 @@ export class MarketActions {
 
   private validateMarket(market: Address) {
     if (!this.markets.includes(market)) {
-      throw new Error(`[size-sdk] Invalid market address: ${market}`);
+      throw new Error(`[@sizecredit/sdk] Invalid market address: ${market}`);
     }
   }
 }

@@ -7,7 +7,7 @@ import SizeABI from "../src/v1.8/abi/Size.json";
 import SizeFactoryABI from "../src/v1.8/abi/SizeFactory.json";
 import ERC20ABI from "../src/erc20/abi/ERC20.json";
 
-describe("size-sdk v1.8", () => {
+describe("@sizecredit/sdk v1.8", () => {
   let window: any;
   let sdk: SDK<"v1.8">;
 

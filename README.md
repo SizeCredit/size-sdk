@@ -1,18 +1,18 @@
-# size-sdk
+# @sizecredit/sdk
 
 Size TypeScript SDK for interacting with the Size protocol
 
 ## Installation
 
 ```bash
-npm install size-sdk
+npm install @sizecredit/sdk
 ```
 
 ## Usage
 
 ```ts
 import { ethers } from "ethers";
-import SDK from "size-sdk";
+import SDK from "@sizecredit/sdk";
 
 // Initialize the SDK with the Size Factory address and market addresses
 const sdk = new SDK({
@@ -21,7 +21,7 @@ const sdk = new SDK({
   version: "v1.8", // or "v1.7"
   labels: {
     "<SIZE_FACTORY_ADDRESS>": "SizeFactory",
-  }
+  },
 });
 ```
 
