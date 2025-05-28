@@ -29,17 +29,19 @@ export default [
     plugins: [
       resolve({
         preferBuiltins: true,
-        mainFields: ['module', 'main']
+        mainFields: ['module', 'main'],
+        extensions: ['.ts', '.js', '.json']
       }),
       commonjs({
         include: /node_modules/,
-        transformMixedEsModules: true
+        transformMixedEsModules: true,
+        requireReturnsDefault: 'auto'
       }),
       json(),
       typescript({ 
         tsconfig: "./tsconfig.json",
         sourceMap: true,
-        module: "ESNext"
+        module: "commonjs"
       }),
     ],
     external: [
