@@ -30,7 +30,6 @@ export interface TxArgs {
 type Version = "v1.7" | "v1.8";
 
 interface SDKParamsCommon {
-  markets: Address[];
   labels?: Record<string, string>;
 }
 
@@ -59,7 +58,6 @@ type TxBuilderByVersion<T extends Version> = T extends "v1.8"
 class SDK<T extends Version> {
   public readonly sizeFactory: Address | undefined;
 
-  public readonly markets: Address[];
   public readonly version: T;
 
   public readonly market: MarketActionsByVersion<T>;
@@ -71,7 +69,6 @@ class SDK<T extends Version> {
   private readonly txBuilder: TxBuilderByVersion<T>;
 
   constructor(params: SDKParams & { version: T }) {
-    this.markets = params.markets;
     this.version = params.version;
     this.erc20 = new ERC20Actions();
     this.errorDecoder = new ErrorDecoder();
@@ -86,18 +83,14 @@ class SDK<T extends Version> {
       this.sizeFactory = (params as SDKParamsV1_8).sizeFactory;
 
       this.factory = new FactoryActionsV1_8() as FactoryActionsByVersion<T>;
-      this.market = new MarketActionsV1_8(
-        this.markets,
-      ) as MarketActionsByVersion<T>;
+      this.market = new MarketActionsV1_8() as MarketActionsByVersion<T>;
 
       this.txBuilder = new TxBuilderV1_8(
         this.sizeFactory,
       ) as TxBuilderByVersion<T>;
     } else {
       this.factory = undefined as unknown as FactoryActionsByVersion<T>;
-      this.market = new MarketActionsV1_7(
-        this.markets,
-      ) as MarketActionsByVersion<T>;
+      this.market = new MarketActionsV1_7() as MarketActionsByVersion<T>;
 
       this.txBuilder = new TxBuilderV1_7() as TxBuilderByVersion<T>;
     }

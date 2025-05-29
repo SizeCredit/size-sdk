@@ -4,7 +4,6 @@ import SDK from "../src";
 describe("@sizecredit/sdk decoder", () => {
   test("should decode ERC20InsufficientBalance", async () => {
     const sdk = new SDK({
-      markets: [],
       version: "v1.7",
     });
 
@@ -18,7 +17,6 @@ describe("@sizecredit/sdk decoder", () => {
 
   test("should decode CR_BELOW_OPENING_LIMIT_BORROW_CR", async () => {
     const sdk = new SDK({
-      markets: [],
       version: "v1.7",
     });
 
@@ -32,7 +30,6 @@ describe("@sizecredit/sdk decoder", () => {
 
   test("should decode calldata of borrow from multiple markets", async () => {
     const sdk = new SDK({
-      markets: [],
       version: "v1.8",
       sizeFactory: "0x0000000000000000000000000000000000000001",
     });
@@ -137,7 +134,6 @@ describe("@sizecredit/sdk decoder", () => {
 
   test("should decode calldata of ideal flow", async () => {
     const sdk = new SDK({
-      markets: [],
       version: "v1.8",
       sizeFactory: "0x0000000000000000000000000000000000000001",
     });
@@ -218,7 +214,6 @@ describe("@sizecredit/sdk decoder", () => {
 
   test("should decode calldata of deposit", async () => {
     const sdk = new SDK({
-      markets: [],
       version: "v1.8",
       sizeFactory: "0x0000000000000000000000000000000000000001",
     });
@@ -239,7 +234,6 @@ describe("@sizecredit/sdk decoder", () => {
 
   test("should decode calldata of undefined", async () => {
     const sdk = new SDK({
-      markets: [],
       version: "v1.7",
     });
 
@@ -249,7 +243,6 @@ describe("@sizecredit/sdk decoder", () => {
 
   test("should decode calldata of approve", async () => {
     const sdk = new SDK({
-      markets: [],
       version: "v1.7",
     });
 
@@ -266,7 +259,6 @@ describe("@sizecredit/sdk decoder", () => {
 
   test("should decode calldata with labels", async () => {
     const sdk = new SDK({
-      markets: [],
       version: "v1.7",
       labels: {
         "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045": "vitalik.eth",

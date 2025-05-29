@@ -1,6 +1,6 @@
 {
   "name": "@sizecredit/sdk",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Size TypeScript SDK for interacting with the Size protocol",
   "type": "module",
   "main": "./dist/cjs/index.js",
@@ -8,7 +8,9 @@
   "types": "./dist/types/index.d.ts",
   "typesVersions": {
     "*": {
-      "*": ["dist/types/*"]
+      "*": [
+        "dist/types/*"
+      ]
     }
   },
   "exports": {

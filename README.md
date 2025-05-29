@@ -17,7 +17,6 @@ import SDK from "@sizecredit/sdk";
 // Initialize the SDK with the Size Factory address and market addresses
 const sdk = new SDK({
   sizeFactory: "<SIZE_FACTORY_ADDRESS>",
-  markets: ["<MARKET_ADDRESS_1>", "<MARKET_ADDRESS_2>"],
   version: "v1.8", // or "v1.7"
   labels: {
     "<SIZE_FACTORY_ADDRESS>": "SizeFactory",
@@ -176,4 +175,15 @@ console.log(decodedCalldata);
 
 ```bash
 npm test
+```
+
+## Publishing
+
+```bash
+# 1. Make sure tests pass
+npm run test
+# 2. Build
+npm build
+# 3. Publish
+npm publish
 ```

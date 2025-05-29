@@ -33,7 +33,6 @@ describe("@sizecredit/sdk v1.7", () => {
       const to = randomAddress();
 
       sdk = new SDK({
-        markets: [market1, randomAddress()],
         version: "v1.7",
       });
 
@@ -63,7 +62,6 @@ describe("@sizecredit/sdk v1.7", () => {
       const lender = randomAddress();
 
       sdk = new SDK({
-        markets: [market1],
         version: "v1.7",
       });
 
@@ -102,7 +100,6 @@ describe("@sizecredit/sdk v1.7", () => {
       const token = randomToken();
 
       sdk = new SDK({
-        markets: [market1, market2],
         version: "v1.7",
       });
 
@@ -160,7 +157,6 @@ describe("@sizecredit/sdk v1.7", () => {
       const creditPositionIds: bigint[] = [];
 
       sdk = new SDK({
-        markets: [market2],
         version: "v1.7",
       });
 

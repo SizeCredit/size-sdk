@@ -26,7 +26,6 @@ describe("@sizecredit/sdk v1.7", () => {
     window.ethereum = {};
 
     sdk = new SDK({
-      markets: [market1, market2],
       version: "v1.7",
     });
     window.sdk = sdk;

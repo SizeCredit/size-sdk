@@ -45,13 +45,12 @@ export type MarketOperation<
 };
 
 export class MarketActions {
-  constructor(private readonly markets: Address[]) {}
+  constructor() {}
 
   deposit(
     market: Address,
     params: DepositParamsStruct,
   ): MarketOperation<DepositParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "deposit",
@@ -63,7 +62,6 @@ export class MarketActions {
     market: Address,
     params: WithdrawParamsStruct,
   ): MarketOperation<WithdrawParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "withdraw",
@@ -75,7 +73,6 @@ export class MarketActions {
     market: Address,
     params: BuyCreditLimitParamsStruct,
   ): MarketOperation<BuyCreditLimitParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "buyCreditLimit",
@@ -87,7 +84,6 @@ export class MarketActions {
     market: Address,
     params: BuyCreditMarketParamsStruct,
   ): MarketOperation<BuyCreditMarketParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "buyCreditMarket",
@@ -99,7 +95,6 @@ export class MarketActions {
     market: Address,
     params: SellCreditLimitParamsStruct,
   ): MarketOperation<SellCreditLimitParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "sellCreditLimit",
@@ -111,7 +106,6 @@ export class MarketActions {
     market: Address,
     params: SellCreditMarketParamsStruct,
   ): MarketOperation<SellCreditMarketParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "sellCreditMarket",
@@ -123,7 +117,6 @@ export class MarketActions {
     market: Address,
     params: LiquidateWithReplacementParamsStruct,
   ): MarketOperation<LiquidateWithReplacementParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "liquidateWithReplacement",
@@ -135,7 +128,6 @@ export class MarketActions {
     market: Address,
     params: SelfLiquidateParamsStruct,
   ): MarketOperation<SelfLiquidateParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "selfLiquidate",
@@ -147,7 +139,6 @@ export class MarketActions {
     market: Address,
     params: SetUserConfigurationParamsStruct,
   ): MarketOperation<SetUserConfigurationParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "setUserConfiguration",
@@ -159,17 +150,10 @@ export class MarketActions {
     market: Address,
     params: CopyLimitOrdersParamsStruct,
   ): MarketOperation<CopyLimitOrdersParamsStruct> {
-    this.validateMarket(market);
     return {
       market,
       functionName: "copyLimitOrders",
       params,
     };
-  }
-
-  private validateMarket(market: Address) {
-    if (!this.markets.includes(market)) {
-      throw new Error(`[@sizecredit/sdk] Invalid market address: ${market}`);
-    }
   }
 }

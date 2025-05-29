@@ -15,7 +15,7 @@ export default {
       format: "cjs",
       sourcemap: true,
       exports: "named",
-      esModule: false
+      esModule: false,
     },
     {
       dir: "dist/esm",
@@ -23,30 +23,34 @@ export default {
       sourcemap: true,
       exports: "named",
       preserveModules: true,
-      preserveModulesRoot: "src"
-    }
+      preserveModulesRoot: "src",
+    },
   ],
   plugins: [
     resolve({
       preferBuiltins: true,
-      mainFields: ['module', 'main'],
-      extensions: ['.ts', '.js', '.json']
+      mainFields: ["module", "main"],
+      extensions: [".ts", ".js", ".json"],
     }),
     commonjs({
       include: /node_modules/,
       transformMixedEsModules: true,
-      requireReturnsDefault: 'auto'
+      requireReturnsDefault: "auto",
     }),
     json(),
     typescript({
       tsconfig: "./tsconfig.json",
-      compilerOptions: { outDir: undefined, declaration: false, declarationMap: false },
+      compilerOptions: {
+        outDir: undefined,
+        declaration: false,
+        declarationMap: false,
+      },
       sourceMap: true,
-      module: "ESNext"
-    })
+      module: "ESNext",
+    }),
   ],
   external: [
     ...Object.keys(packageJson.dependencies || {}),
-    ...Object.keys(packageJson.peerDependencies || {})
-  ]
+    ...Object.keys(packageJson.peerDependencies || {}),
+  ],
 };

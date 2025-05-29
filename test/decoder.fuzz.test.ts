@@ -186,7 +186,6 @@ describe("@sizecredit/sdk decoder fuzz tests", () => {
       const sizeFactory = randomAddress();
 
       const sdk = new SDK({
-        markets: [market1, market2],
         version: "v1.8",
         sizeFactory,
         labels: {

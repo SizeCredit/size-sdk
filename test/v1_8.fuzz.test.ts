@@ -34,7 +34,6 @@ describe("@sizecredit/sdk v1.8", () => {
       const sizeFactory = randomAddress();
 
       sdk = new SDK({
-        markets: [market1, randomAddress()],
         version: "v1.8",
         sizeFactory,
       });
@@ -68,7 +67,6 @@ describe("@sizecredit/sdk v1.8", () => {
       const rateProvider = randomAddress();
 
       sdk = new SDK({
-        markets: [market1],
         version: "v1.8",
         sizeFactory,
       });
@@ -113,7 +111,6 @@ describe("@sizecredit/sdk v1.8", () => {
       const rateProvider = randomAddress();
 
       sdk = new SDK({
-        markets: [market1, market2],
         version: "v1.8",
         sizeFactory,
       });
@@ -174,7 +171,6 @@ describe("@sizecredit/sdk v1.8", () => {
       const vault = randomAddress();
 
       sdk = new SDK({
-        markets: [market2],
         version: "v1.8",
         sizeFactory,
       });

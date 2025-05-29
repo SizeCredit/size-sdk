@@ -36,7 +36,6 @@ describe("@sizecredit/sdk v1.8", () => {
 
     sdk = new SDK({
       sizeFactory,
-      markets: [market1, market2],
       version: "v1.8",
     });
     window.sdk = sdk;
