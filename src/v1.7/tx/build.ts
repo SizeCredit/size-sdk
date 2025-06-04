@@ -25,6 +25,10 @@ export class TxBuilder {
     operations: (MarketOperation | ERC20Operation)[],
     recipient?: Address,
   ): TxArgs[] {
+    if (operations.length === 0) {
+      throw new Error("[@sizecredit/sdk] no operations to execute");
+    }
+
     return operations.map((operation) => {
       if (isMarketOperation(operation)) {
         const { market, functionName, params, value } = operation;
