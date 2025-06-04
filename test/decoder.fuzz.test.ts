@@ -1,6 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
 import SDK from "../src";
-import { ethers } from "ethers";
 import {
   randomBigInt,
   randomAddress,
@@ -14,7 +13,7 @@ import {
   MarketOperation,
   MarketFunctionName,
 } from "../src/v1.8/actions/market";
-import { Address } from "../src/types";
+import { Address } from "../src/index";
 import { OnBehalfOfFunctionName } from "../src/v1.8/actions/onBehalfOf";
 
 function generateRandomOperation(

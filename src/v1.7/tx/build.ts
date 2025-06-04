@@ -2,20 +2,13 @@ import { ethers } from "ethers";
 import SizeABI from "../abi/Size.json";
 import ERC20ABI from "../../erc20/abi/ERC20.json";
 import { MarketOperation } from "../actions/market";
-import { Address } from "../../types";
-import { TxArgs } from "../../index";
+import { TxArgs, Address } from "../../index";
 import { ERC20Operation } from "../../erc20/actions";
 
 function isMarketOperation(
   operation: MarketOperation | ERC20Operation,
 ): operation is MarketOperation {
   return "market" in operation;
-}
-
-function isERC20Operation(
-  operation: MarketOperation | ERC20Operation,
-): operation is ERC20Operation {
-  return "functionName" in operation && operation.functionName === "approve";
 }
 
 export class TxBuilder {
@@ -34,11 +27,12 @@ export class TxBuilder {
   ): TxArgs[] {
     return operations.map((operation) => {
       if (isMarketOperation(operation)) {
-        const { market, functionName, params } = operation;
+        const { market, functionName, params, value } = operation;
         const calldata = this.ISize.encodeFunctionData(functionName, [params]);
         return {
           target: market,
           data: calldata,
+          value: value,
         };
       } else {
         const { token, functionName, params } = operation;
@@ -46,6 +40,7 @@ export class TxBuilder {
         return {
           target: token,
           data: calldata,
+          value: undefined,
         };
       }
     });

@@ -1,4 +1,5 @@
-import { Address } from "../../types";
+import { BigNumberish } from "ethers";
+import { Address } from "../../index";
 import {
   DepositParamsStruct,
   WithdrawParamsStruct,
@@ -42,6 +43,7 @@ export type MarketOperation<
   market: Address;
   functionName: MarketFunctionName;
   params: T;
+  value?: BigNumberish;
 };
 
 export class MarketActions {
@@ -50,11 +52,13 @@ export class MarketActions {
   deposit(
     market: Address,
     params: DepositParamsStruct,
+    value?: BigNumberish,
   ): MarketOperation<DepositParamsStruct> {
     return {
       market,
       functionName: "deposit",
       params,
+      value,
     };
   }
 

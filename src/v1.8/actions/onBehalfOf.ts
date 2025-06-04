@@ -1,5 +1,5 @@
 import { Action, FunctionNameToAction } from "../../Authorization";
-import { Address } from "../../types";
+import { Address } from "../../index";
 import {
   DepositOnBehalfOfParamsStruct,
   SetUserConfigurationOnBehalfOfParamsStruct,

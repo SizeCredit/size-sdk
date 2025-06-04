@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import SizeABI from "../abi/Size.json";
 import SizeFactoryABI from "../abi/SizeFactory.json";
 import ERC20ABI from "../../erc20/abi/ERC20.json";
@@ -7,8 +7,7 @@ import { FactoryOperation } from "../actions/factory";
 import { ERC20Operation } from "../../erc20/actions";
 import Authorization, { ActionsBitmap, type Action } from "../../Authorization";
 import { onBehalfOfOperation } from "../actions/onBehalfOf";
-import { Address } from "../../types";
-import { TxArgs } from "../../index";
+import { TxArgs, Address } from "../../index";
 
 function isMarketOperation(
   operation: MarketOperation | FactoryOperation | ERC20Operation,
@@ -25,6 +24,7 @@ function isERC20Operation(
 interface Subcall {
   target: Address;
   calldata: string;
+  value?: BigNumberish;
   isERC20: boolean;
   onBehalfOfCalldata?: string;
   action?: Action;
@@ -50,7 +50,7 @@ export class TxBuilder {
   ): Subcall[] {
     return operations.map((operation) => {
       if (isMarketOperation(operation)) {
-        const { market, functionName, params } = operation;
+        const { market, functionName, params, value } = operation;
         const onBehalfOfOp = onBehalfOfOperation(
           market,
           functionName,
@@ -61,6 +61,7 @@ export class TxBuilder {
         return {
           target: market,
           calldata: this.ISize.encodeFunctionData(functionName, [params]),
+          value: value,
           isERC20: false,
           onBehalfOfCalldata: onBehalfOfOp
             ? this.ISize.encodeFunctionData(onBehalfOfOp.functionName, [
@@ -74,6 +75,7 @@ export class TxBuilder {
         return {
           target: token,
           calldata: this.IERC20.encodeFunctionData(functionName, params),
+          value: undefined,
           isERC20: true,
           onBehalfOfCalldata: undefined,
           action: undefined,
@@ -86,6 +88,7 @@ export class TxBuilder {
         return {
           target: this.sizeFactory,
           calldata: calldata,
+          value: undefined,
           isERC20: false,
           onBehalfOfCalldata: undefined,
           action: undefined,
@@ -100,6 +103,7 @@ export class TxBuilder {
       .map((op) => ({
         target: op.target,
         data: op.calldata,
+        value: undefined,
       }));
   }
 
@@ -161,6 +165,7 @@ export class TxBuilder {
         {
           target: subcalls[0].target,
           data: subcalls[0].calldata,
+          value: subcalls[0].value,
         },
       ];
     } else {
@@ -178,6 +183,7 @@ export class TxBuilder {
         {
           target: this.sizeFactory,
           data: multicall,
+          value: undefined,
         },
       ];
     }

@@ -38,7 +38,7 @@
   },
   "scripts": {
     "build": "npm run clean && npm run build:types && npm run build:bundles",
-    "build:types": "tsc --emitDeclarationOnly --outDir dist/types && cp src/types.d.ts dist/types/types.d.ts",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
     "build:bundles": "npx rollup -c rollup.config.mjs",
     "clean": "rm -r dist || true",
     "prepare": "npm run build",
