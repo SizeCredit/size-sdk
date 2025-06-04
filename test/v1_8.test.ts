@@ -319,4 +319,10 @@ describe("@sizecredit/sdk v1.8", () => {
     );
     expect(txs[0].value).toBeUndefined();
   });
+
+  test("tx.build should throw on empty operations", () => {
+    expect(() => sdk.tx.build(alice, [])).toThrow(
+      "[@sizecredit/sdk] no operations to execute",
+    );
+  });
 });
