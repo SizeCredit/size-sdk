@@ -252,6 +252,37 @@ describe("@sizecredit/sdk v1.7", () => {
     );
   });
 
+  test("deposit with value then borrow", async () => {
+    const value = ethers.utils.parseEther("0.1");
+    const txs = sdk.tx.build(alice, [
+      sdk.market.deposit(
+        market1,
+        {
+          amount: value,
+          to: alice,
+          token: weth,
+        },
+        value,
+      ),
+      sdk.market.sellCreditMarket(market1, {
+        lender: bob,
+        creditPositionId: ethers.constants.MaxUint256,
+        amount: 100n,
+        tenor: 365n * 24n * 60n * 60n,
+        deadline: 1893456000n,
+        maxAPR: ethers.constants.MaxUint256,
+        exactAmountIn: false,
+      }),
+    ]);
+
+    expect(txs.length).toBe(2);
+    expect(txs[0].target).toBe(market1);
+    expect(txs[0].value?.toString()).toBe(value.toString());
+    expect(txs[1].target).toBe(market1);
+    expect(txs[1].value).toBeUndefined();
+  });
+
+  
   test("tx.build should throw on empty operations", () => {
     expect(() => sdk.tx.build(alice, [])).toThrow(
       "[@sizecredit/sdk] no operations to execute",
