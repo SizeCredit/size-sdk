@@ -251,4 +251,10 @@ describe("@sizecredit/sdk v1.7", () => {
       ),
     );
   });
+
+  test("tx.build should throw on empty operations", () => {
+    expect(() => sdk.tx.build(alice, [])).toThrow(
+      "[@sizecredit/sdk] no operations to execute",
+    );
+  });
 });

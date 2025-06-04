@@ -280,4 +280,10 @@ describe("@sizecredit/sdk v1.8", () => {
       sdk.helpers.selector(ISize, "sellCreditMarketOnBehalfOf"),
     );
   });
+
+  test("tx.build should throw on empty operations", () => {
+    expect(() => sdk.tx.build(alice, [])).toThrow(
+      "[@sizecredit/sdk] no operations to execute",
+    );
+  });
 });
