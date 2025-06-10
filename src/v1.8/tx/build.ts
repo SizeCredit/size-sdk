@@ -121,16 +121,44 @@ export class TxBuilder {
   }
 
   private getSizeFactorySubcallsDatas(subcalls: Subcall[]): string[] {
-    return subcalls
-      .filter((op) => !op.isERC20)
-      .map((op) =>
-        op.target === this.sizeFactory
-          ? op.calldata
-          : this.ISizeFactory.encodeFunctionData("callMarket", [
-              op.target,
-              op.onBehalfOfCalldata,
-            ]),
-      );
+    const ops = subcalls.filter((op) => !op.isERC20);
+
+    type Group = { target: Address; ops: Subcall[] };
+
+    const groups = ops.reduce<Group[]>((acc, op) => {
+      if (op.target === this.sizeFactory) {
+        acc.push({ target: op.target, ops: [op] });
+        return acc;
+      }
+
+      const last = acc[acc.length - 1];
+      if (last && last.target === op.target && last.target !== this.sizeFactory) {
+        last.ops.push(op);
+      } else {
+        acc.push({ target: op.target, ops: [op] });
+      }
+      return acc;
+    }, []);
+
+    return groups.map((group) => {
+      if (group.target === this.sizeFactory) {
+        return group.ops[0].calldata;
+      }
+
+      if (group.ops.length === 1) {
+        return this.ISizeFactory.encodeFunctionData("callMarket", [
+          group.target,
+          group.ops[0].onBehalfOfCalldata ?? group.ops[0].calldata,
+        ]);
+      }
+
+      const calldatas = group.ops.map((g) => g.onBehalfOfCalldata ?? g.calldata);
+      const multicall = this.ISize.encodeFunctionData("multicall", [calldatas]);
+      return this.ISizeFactory.encodeFunctionData("callMarket", [
+        group.target,
+        multicall,
+      ]);
+    });
   }
 
   private getAuthorizationSubcallsDatas(

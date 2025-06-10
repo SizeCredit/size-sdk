@@ -125,7 +125,7 @@ describe("@sizecredit/sdk v1.7", () => {
         }),
       ]);
 
-      expect(txs.length).toBe(3);
+      expect(txs.length).toBe(1);
       txs.forEach((tx) => {
         expect(tx.data).not.toContain(
           sdk.helpers.selector("setAuthorization(address,uint256)"),

@@ -1,11 +1,13 @@
 import { ethers } from "ethers";
+import { Result } from "@ethersproject/abi";
+
 import SizeFactoryV1_8 from "../v1.8/abi/SizeFactory.json";
 import SizeFactoryV1_7 from "../v1.7/abi/SizeFactory.json";
 import SizeV1_7 from "../v1.7/abi/Size.json";
 import SizeV1_8 from "../v1.8/abi/Size.json";
 import CollectionsManagerV1_8 from "../v1.8/abi/CollectionsManager.json";
 import ERC20 from "../erc20/abi/ERC20.json";
-import { Result } from "@ethersproject/abi";
+
 import { Action, isActionSet } from "../Authorization";
 
 export class CalldataDecoder {
@@ -13,9 +15,7 @@ export class CalldataDecoder {
   private readonly labels: Record<string, string>;
 
   constructor(labels: Record<string, string> = {}) {
-    const set = new Set<string>();
-
-    const abi = [
+    const abis = [
       ...CollectionsManagerV1_8.abi,
       ...SizeFactoryV1_8.abi,
       ...SizeFactoryV1_7.abi,
@@ -24,19 +24,29 @@ export class CalldataDecoder {
       ...ERC20.abi,
     ];
 
-    const deduped = abi
-      .filter((item) => item.type === "function")
-      .filter((item) => {
-        const sig = `${item.name}(${item.inputs.map((e: any) => this.formatType(e)).join(",")})`;
-        if (set.has(sig)) return false;
-        set.add(sig);
-        return true;
-      });
-
-    this.abi = new ethers.utils.Interface(deduped);
+    this.abi = CalldataDecoder.buildInterface(abis);
     this.labels = Object.fromEntries(
       Object.entries(labels).map(([key, value]) => [key.toLowerCase(), value]),
     );
+  }
+
+  private indent(level: number): string {
+    return "  ".repeat(level);
+  }
+
+  private static buildInterface(abi: any[]): ethers.utils.Interface {
+    const seen = new Set<string>();
+    const deduped = abi
+      .filter((item) => item.type === "function")
+      .filter((item) => {
+        const sig = `${item.name}(${item.inputs
+          .map((e: any) => CalldataDecoder.formatType(e))
+          .join(",")})`;
+        if (seen.has(sig)) return false;
+        seen.add(sig);
+        return true;
+      });
+    return new ethers.utils.Interface(deduped);
   }
 
   decode(data: string): string {
@@ -53,19 +63,22 @@ export class CalldataDecoder {
     }
   }
 
-  private formatType(input: any): string {
+  private static formatType(input: any): string {
     if (input.type === "tuple") {
       const components = input.components
-        .map((e: any) => this.formatType(e))
+        .map((e: any) => CalldataDecoder.formatType(e))
         .join(",");
       return `(${components})${input.type.endsWith("[]") ? "[]" : ""}`;
-    } else if (input.type.endsWith("]") && input.type.startsWith("tuple")) {
+    }
+
+    if (input.type.startsWith("tuple") && input.type.endsWith("]")) {
       const components = input.components
-        .map((e: any) => this.formatType(e))
+        .map((e: any) => CalldataDecoder.formatType(e))
         .join(",");
       const arrayPart = input.type.slice("tuple".length);
       return `(${components})${arrayPart}`;
     }
+
     return input.type;
   }
 
@@ -94,8 +107,6 @@ export class CalldataDecoder {
     inputs: ethers.utils.ParamType[],
     level: number,
   ): string {
-    const indent = (lvl: number) => "  ".repeat(lvl);
-
     const formattedArgs = args.map((arg, i) => {
       const input = inputs[i];
 
@@ -118,10 +129,10 @@ export class CalldataDecoder {
         );
         return (
           "[\n" +
-          indent(level + 2) +
-          inner.join(",\n" + indent(level + 2)) +
+          this.indent(level + 2) +
+          inner.join(",\n" + this.indent(level + 2)) +
           "\n" +
-          indent(level + 1) +
+          this.indent(level + 1) +
           "]"
         );
       }
@@ -139,7 +150,7 @@ export class CalldataDecoder {
       return this.toString(arg);
     });
 
-    return `${name}(\n${indent(level + 1)}${formattedArgs.join(",\n" + indent(level + 1))}\n${indent(level)})`;
+    return `${name}(\n${this.indent(level + 1)}${formattedArgs.join(",\n" + this.indent(level + 1))}\n${this.indent(level)})`;
   }
 
   private formatTuple(
@@ -147,7 +158,6 @@ export class CalldataDecoder {
     input: ethers.utils.ParamType,
     level: number,
   ): string {
-    const indent = (lvl: number) => "  ".repeat(lvl);
     const components = input.components || [];
 
     const namedArgs = components.map((component) => {
@@ -161,14 +171,13 @@ export class CalldataDecoder {
       // If the component is an array of tuples, format each tuple
       if (component.type.startsWith("tuple[]") && Array.isArray(value)) {
         const formattedTuples = value.map((item: any) => {
-          // Use the array component's components for the tuple
           const arrayComponent = component.arrayChildren;
           if (!arrayComponent) {
             return this.toString(item);
           }
           return this.formatTuple(item, arrayComponent, level + 2);
         });
-        return `${component.name}: [\n${indent(level + 2)}${formattedTuples.join(",\n" + indent(level + 2))}\n${indent(level + 1)}]`;
+        return `${component.name}: [\n${this.indent(level + 2)}${formattedTuples.join(",\n" + this.indent(level + 2))}\n${this.indent(level + 1)}]`;
       }
 
       return `${component.name}: ${this.toString(value)}`;
@@ -176,10 +185,10 @@ export class CalldataDecoder {
 
     return (
       "{\n" +
-      indent(level + 2) +
-      namedArgs.join(",\n" + indent(level + 2)) +
+      this.indent(level + 2) +
+      namedArgs.join(",\n" + this.indent(level + 2)) +
       "\n" +
-      indent(level + 1) +
+      this.indent(level + 1) +
       "}"
     );
   }
