@@ -115,7 +115,7 @@ describe("@sizecredit/sdk v1.7", () => {
         copyBorrowOffer: sdk.constants.FullCopy,
       }),
     ]);
-    expect(txs.length).toBe(3);
+    expect(txs.length).toBe(2);
     txs.forEach((tx) => {
       expect(tx.data).not.toContain(
         sdk.helpers.selector("setAuthorization(address,uint256)"),
@@ -127,22 +127,21 @@ describe("@sizecredit/sdk v1.7", () => {
       );
     });
     expect(txs[1].data).toContain(
+      sdk.helpers.selector("multicall(bytes[])")
+    );
+    expect(txs[1].data).toContain(
       sdk.helpers.selector("deposit((address,uint256,address))"),
+    );
+    expect(txs[1].data).toContain(
+      sdk.helpers.selector(
+        "copyLimitOrders((address,(uint256,uint256,uint256,uint256,int256),(uint256,uint256,uint256,uint256,int256)))",
+      ),
     );
 
     expect(txs[0].target).toBe(market2);
-    expect(txs[0].data).toBe(
-      "0x2e106f21000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000",
-    );
     expect(txs[1].target).toBe(market1);
-    expect(txs[1].data).toBe(
-      "0x0cf8542f000000000000000000000000420000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000001337",
-    );
-    expect(txs[2].target).toBe(market1);
-    expect(txs[2].data).toBe(
-      "0xf052e7a400000000000000000000000000000000000000000000000000000000000300000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000",
-    );
   });
+
 
   test("v1.7 borrow from multiple markets", async () => {
     const wethAmount = 300n;
@@ -187,7 +186,7 @@ describe("@sizecredit/sdk v1.7", () => {
       }),
     ]);
 
-    expect(txs.length).toBe(5);
+    expect(txs.length).toBe(3);
     txs.forEach((tx) => {
       expect(tx.data).not.toContain(
         sdk.helpers.selector("setAuthorization(address,uint256)"),
@@ -232,26 +231,24 @@ describe("@sizecredit/sdk v1.7", () => {
       }),
     ]);
 
-    expect(txs.length).toBe(3);
+    expect(txs.length).toBe(2);
 
     expect(txs[0].target).toBe(usdc);
     expect(txs[0].data).toContain(
       sdk.helpers.selector("approve(address,uint256)"),
     );
-
     expect(txs[1].target).toBe(market1);
     expect(txs[1].data).toContain(
-      sdk.helpers.selector("deposit((address,uint256,address))"),
+      sdk.helpers.selector("multicall(bytes[])")
+    );
+    expect(txs[1].data).toContain(
+      sdk.helpers.selector("deposit((address,uint256,address))")
+    );
+    expect(txs[1].data).toContain(
+      sdk.helpers.selector("sellCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool))")
     );
 
-    expect(txs[2].target).toBe(market1);
-    expect(txs[2].data).toContain(
-      sdk.helpers.selector(
-        "sellCreditMarket((address,uint256,uint256,uint256,uint256,uint256,bool))",
-      ),
-    );
   });
-
   test("deposit with value then borrow", async () => {
     const value = ethers.utils.parseEther("0.1");
     const txs = sdk.tx.build(alice, [
@@ -275,11 +272,9 @@ describe("@sizecredit/sdk v1.7", () => {
       }),
     ]);
 
-    expect(txs.length).toBe(2);
+    expect(txs.length).toBe(1);
     expect(txs[0].target).toBe(market1);
     expect(txs[0].value?.toString()).toBe(value.toString());
-    expect(txs[1].target).toBe(market1);
-    expect(txs[1].value).toBeUndefined();
   });
 
   

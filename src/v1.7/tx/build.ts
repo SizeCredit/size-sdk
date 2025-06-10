@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
 import SizeABI from "../abi/Size.json";
 import ERC20ABI from "../../erc20/abi/ERC20.json";
 import { MarketOperation } from "../actions/market";
@@ -29,24 +29,57 @@ export class TxBuilder {
       throw new Error("[@sizecredit/sdk] no operations to execute");
     }
 
-    return operations.map((operation) => {
-      if (isMarketOperation(operation)) {
-        const { market, functionName, params, value } = operation;
-        const calldata = this.ISize.encodeFunctionData(functionName, [params]);
-        return {
-          target: market,
-          data: calldata,
-          value: value,
-        };
+    const toBigNumber = (v?: BigNumberish) =>
+      v === undefined ? BigNumber.from(0) : BigNumber.from(v);
+
+    type Group =
+      | { type: "market"; market: Address; operations: MarketOperation[] }
+      | { type: "erc20"; operation: ERC20Operation };
+
+    const groups = operations.reduce<Group[]>((acc, op) => {
+      const last = acc[acc.length - 1];
+      if (isMarketOperation(op)) {
+        if (
+          last &&
+          last.type === "market" &&
+          last.market === op.market
+        ) {
+          last.operations.push(op);
+        } else {
+          acc.push({ type: "market", market: op.market, operations: [op] });
+        }
       } else {
-        const { token, functionName, params } = operation;
-        const calldata = this.IERC20.encodeFunctionData(functionName, params);
-        return {
-          target: token,
-          data: calldata,
-          value: undefined,
-        };
+        acc.push({ type: "erc20", operation: op });
       }
+      return acc;
+    }, []);
+
+    return groups.map((group) => {
+      if (group.type === "erc20") {
+        const { token, functionName, params } = group.operation;
+        const calldata = this.IERC20.encodeFunctionData(functionName, params);
+        return { target: token, data: calldata, value: undefined } as TxArgs;
+      }
+
+      const market = group.market;
+      if (group.operations.length === 1) {
+        const { functionName, params, value } = group.operations[0];
+        const calldata = this.ISize.encodeFunctionData(functionName, [params]);
+        return { target: market, data: calldata, value } as TxArgs;
+      }
+
+      const calldatas = group.operations.map((g) =>
+        this.ISize.encodeFunctionData(g.functionName, [g.params])
+      );
+      const totalValue = group.operations
+        .map((g) => toBigNumber(g.value))
+        .reduce((a, b) => a.add(b), BigNumber.from(0));
+      const calldata = this.ISize.encodeFunctionData("multicall", [calldatas]);
+      return {
+        target: market,
+        data: calldata,
+        value: totalValue.isZero() ? undefined : totalValue,
+      } as TxArgs;
     });
   }
 }
