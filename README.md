@@ -1,5 +1,7 @@
 # @sizecredit/sdk
 
+[![Coverage Status](https://coveralls.io/repos/github/sizecredit/sdk/badge.svg?branch=main)](https://coveralls.io/github/sizecredit/sdk?branch=main)
+
 Size TypeScript SDK for interacting with the Size protocol
 
 ## Installation
