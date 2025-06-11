@@ -1,0 +1,42 @@
+name: Publish Release
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - name: Bump version
+        run: |
+          npm version minor --no-git-tag-version
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add package.json package-lock.json
+          ver=$(node -p "require('./package.json').version")
+          git commit -m "chore: release v$ver [skip ci]"
+          git push origin HEAD:main
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-optional
+      - name: Publish package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p 'require(\"./package.json\").version')" >> $GITHUB_OUTPUT
+      - name: Create GitHub release
+        uses: actions/create-release@v1
+        with:
+          tag_name: "v${{ steps.version.outputs.version }}"
+          release_name: "v${{ steps.version.outputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
