@@ -1,4 +1,4 @@
-# @sizecredit/sdk [![Coverage Status](https://coveralls.io/repos/github/sizecredit/sdk/badge.svg?branch=main)](https://coveralls.io/github/sizecredit/sdk?branch=main)
+# @sizecredit/sdk [![Coverage Status](https://coveralls.io/repos/github/SizeCredit/sdk/badge.svg?branch=main)](https://coveralls.io/github/SizeCredit/sdk?branch=main)
 
 Size TypeScript SDK for interacting with the Size protocol
 
@@ -187,3 +187,9 @@ npm build
 # 3. Publish
 npm publish
 ```
+
+## Disclaimer
+
+This code is provided "as is" and has not undergone a formal security audit.
+
+Use it at your own risk. The author(s) assume no liability for any damages or losses resulting from the use of this code. It is your responsibility to thoroughly review, test, and validate its security and functionality before deploying or relying on it in any environment.
